@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>10.0.20506</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{BC38A310-95F0-A995-47C5-26680CC2D8D0}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-CSharp</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+	<BaseDirectory>Assets</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_4_6_9;UNITY_4_6;UNITY_ANDROID;ENABLE_MICROPHONE;ENABLE_TEXTUREID_MAP;ENABLE_UNITYEVENTS;ENABLE_NEW_HIERARCHY ;ENABLE_AUDIO_FMOD;ENABLE_TERRAIN;ENABLE_SUBSTANCE;ENABLE_GENERICS;INCLUDE_IL2CPP;INCLUDE_WP8SUPPORT;ENABLE_WWW;ENABLE_IMAGEEFFECTS;ENABLE_4_6_FEATURES;INCLUDE_WP_BLUE_SUPPORT;ENABLE_WEBCAM;INCLUDE_METROSUPPORT;RENDER_SOFTWARE_CURSOR;ENABLE_NETWORK;ENABLE_PHYSICS;UNITY5_SCRIPTING_IN_UNITY4;ENABLE_CACHING;ENABLE_CLOTH;UNITY_ANDROID_API;ENABLE_2D_PHYSICS;ENABLE_SHADOWS;ENABLE_AUDIO;ENABLE_NAVMESH_CARVING;ENABLE_SINGLE_INSTANCE_BUILD_SETTING;ENABLE_MONO;ENABLE_PROFILER;UNITY_EDITOR;UNITY_EDITOR_WIN;UNITY_TEAM_LICENSE;UNITY_PRO_LICENSE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="System.Xml.Linq" />
+	<Reference Include="UnityEngine">
+	  <HintPath>D:/Software/Unity 4.6.9/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>D:/Software/Unity 4.6.9/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\DLL\CookieJar.cs" />
+     <Compile Include="Assets\DLL\JSON.cs" />
+     <Compile Include="Assets\DLL\OKAuthType.cs" />
+     <Compile Include="Assets\DLL\OKDelegate.cs" />
+     <Compile Include="Assets\DLL\OKFriendSelectionWidget.cs" />
+     <Compile Include="Assets\DLL\OKImageWidget.cs" />
+     <Compile Include="Assets\DLL\OKInviteWidget.cs" />
+     <Compile Include="Assets\DLL\OKLocation.cs" />
+     <Compile Include="Assets\DLL\OKMethod.cs" />
+     <Compile Include="Assets\DLL\OKMethodInfo.cs" />
+     <Compile Include="Assets\DLL\OKPhoto.cs" />
+     <Compile Include="Assets\DLL\OKPhotoWidget.cs" />
+     <Compile Include="Assets\DLL\OKPublishWidget.cs" />
+     <Compile Include="Assets\DLL\OKScope.cs" />
+     <Compile Include="Assets\DLL\OKSuggestWidget.cs" />
+     <Compile Include="Assets\DLL\OKUserInfo.cs" />
+     <Compile Include="Assets\DLL\OKWidget.cs" />
+     <Compile Include="Assets\DLL\Request.cs" />
+     <Compile Include="Assets\DLL\Response.cs" />
+     <Compile Include="Assets\DLL\ResponseCallbackDispatcher.cs" />
+     <Compile Include="Assets\DLL\ScreenManager.cs" />
+     <Compile Include="Assets\DLL\SelectableFriend.cs" />
+     <Compile Include="Assets\DLL\XML.cs" />
+     <Compile Include="Assets\Example\Scripts\Background.cs" />
+     <Compile Include="Assets\Example\Scripts\CameraWall.cs" />
+     <Compile Include="Assets\Example\Scripts\Cookie.cs" />
+     <Compile Include="Assets\Example\Scripts\CookieRigid.cs" />
+     <Compile Include="Assets\Example\Scripts\ErrorDialog.cs" />
+     <Compile Include="Assets\Example\Scripts\GameLogic.cs" />
+     <Compile Include="Assets\Example\Scripts\LevelUpPanel.cs" />
+     <Compile Include="Assets\Example\Scripts\Loader.cs" />
+     <Compile Include="Assets\Example\Scripts\MainMenu.cs" />
+     <Compile Include="Assets\Example\Scripts\TestFriendPanel.cs" />
+     <Compile Include="Assets\Example\Scripts\TestFriendSlot.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\AbstractOdnoklassniki.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\AndroidOdnoklassniki.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\IOSOdnoklassniki.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\IOdnoklassniki.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\OK.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\OKSettings.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\OdnoklassnikiSettingsEditor.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\Util\Android\ManifestMod.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\Util\Android\OdnoklassnikiAndroidUtil.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\Util\Encryption\Encryption.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\Util\OKWebView.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\Util\iOS\PListParser.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\Util\iOS\PListWrapper.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\Util\iOS\iOSURLSchemePostProcess.cs" />
+     <Compile Include="Assets\Odnoklassniki\Scripts\WebGLOdnoklassniki.cs" />
+     <Compile Include="Assets\Test\APIController.cs" />
+     <None Include="Assets\Example\Shaders\RimCookie.shader" />
+     <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
+ <Reference Include="UnityEngine.UI">
+ <HintPath>D:/Software/Unity 4.6.9/Editor/Data/UnityExtensions/Unity/GUISystem/4.6.9/Standalone/UnityEngine.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="Ionic.Zlib.CF">
+ <HintPath>D:/work/unityok/Assets/Lib/Ionic.Zlib.CF.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass-vs.csproj">
+      <Project>{8FF51913-C831-0803-8042-9F6E2B04747B}</Project>      <Name>Assembly-CSharp-firstpass-vs</Name>    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
