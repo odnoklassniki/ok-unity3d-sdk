@@ -7,6 +7,7 @@ Application Requirements
 -------
 
 An application registered within OK platform should have:
+
 1. Target platform checked (like ANDROID or IOS)
 2. EXTERNAL platform checked
 3. Client OAUTH checkbox checked
