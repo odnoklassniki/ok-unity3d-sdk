@@ -3,6 +3,15 @@ Odnoklassniki Unity SDK
 
 This SDK allows you to connect your Unity **Android** and **iOS** with Odnoklassniki.
 
+Application Requirements
+-------
+
+An application registered within OK platform should have:
+1. Target platform checked (like ANDROID or IOS)
+2. EXTERNAL platform checked
+3. Client OAUTH checkbox checked
+4. A VALUABLE_ACCESS permission being checked or requested
+
 Setup
 -------
 
