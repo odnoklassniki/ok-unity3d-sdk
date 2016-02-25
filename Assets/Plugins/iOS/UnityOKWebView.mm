@@ -1,6 +1,4 @@
 #import <UIKit/UIKit.h>
-#import "iPhone_Common.h"
-#import "iPhone_OrientationSupport.h"
 
 #ifndef NSFoundationVersionNumber_iOS_7_1
 #define NSFoundationVersionNumber_iOS_7_1 1047.25
@@ -10,10 +8,6 @@
 
 extern UIViewController *UnityGetGLViewController();
 extern ScreenOrientation UnityCurrentOrientation();
-extern NSString * const kUnityViewWillRotate;
-
-NSString * const UWVPlayerWillExitFullScreenNotification = @"UIMoviePlayerControllerWillExitFullscreenNotification";
-NSString * const UWVPlayerDidEnterFullScreenNotification = @"UIMoviePlayerControllerDidEnterFullscreenNotification";
 
 extern "C" void UnitySendMessage(const char *, const char *, const char *);
 
@@ -26,11 +20,6 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 
 @implementation UniWebViewToolBar
 -(void)dealloc {
-	[_btnNext release];
-	[_btnBack release];
-	[_btnReload release];
-	[_btnDone release];
-	[super dealloc];
 }
 @end
 
@@ -62,13 +51,12 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 		_textLabel.backgroundColor = [UIColor clearColor];
 		_textLabel.textColor = [UIColor whiteColor];
 		_textLabel.adjustsFontSizeToFitWidth = YES;
-		_textLabel.textAlignment = UITextAlignmentCenter;
+		_textLabel.textAlignment = NSTextAlignmentCenter;
 		_textLabel.text = @"Loading...";
 		[self addSubview:_textLabel];
 
 		UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hide)];
 		[self addGestureRecognizer:tap];
-		[tap release];
 	}
 	return self;
 }
@@ -84,9 +72,6 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void)dealloc {
-	[_textLabel release];
-	[_indicator release];
-	[super dealloc];
 }
 @end
 
@@ -157,12 +142,6 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 			toolBar.btnDone = done;
 
 			toolBar.hidden = YES;
-
-			[back release];
-			[forward release];
-			[reload release];
-			[done release];
-			[space release];
 
 			toolBar;
 		});
@@ -250,12 +229,6 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 
 -(void)dealloc {
 	[self removeFromView];
-	
-	[_toolBar release];
-	[_schemes release];
-	[_spinner release];
-	
-	[super dealloc];
 }
 @end
 
@@ -278,10 +251,6 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 	self = [super init];
 	if (self) {
 		_webViewDic = [[NSMutableDictionary alloc] init];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:kUnityViewWillRotate object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoExitFullScreen:) name:UWVPlayerWillExitFullScreenNotification object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(videoEnterFullScreen:) name:UWVPlayerDidEnterFullScreenNotification object:nil];
-		
 		[self checkOrientationSupport];
 	}
 	return self;
@@ -326,7 +295,6 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 	[self addManagedWebView:webView forName:name];
 
 	[webView addToView:unityView];
-	[webView release];
 }
 
 -(void) changeWebViewName:(NSString *)name insets:(UIEdgeInsets)insets {
@@ -564,40 +532,8 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 	}];
 }
 
--(void) videoEnterFullScreen:(NSNotification *)noti {
-	UIInterfaceOrientation toInterfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
-	_orientationBeforeFullScreen = ConvertToUnityScreenOrientation(toInterfaceOrientation, 0);
-}
-
--(void) videoExitFullScreen:(NSNotification *)noti {
-	
-	ScreenOrientation orientation = portrait;
-	
-	if (_multipleOrientation) {
-		UIInterfaceOrientation toInterfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
-		orientation = ConvertToUnityScreenOrientation(toInterfaceOrientation, 0);
-	} else {
-		orientation = UnityCurrentOrientation();
-	}
-	
-	if (_orientationBeforeFullScreen == landscapeLeft || _orientationBeforeFullScreen == landscapeRight) {
-		if (orientation == portrait) {
-			orientation = _orientationBeforeFullScreen;
-		} else {
-			orientation = portrait;
-		}
-	}
-	
-	[_webViewDic enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-		UniWebView *webView = (UniWebView *)obj;
-		[webView changeToInsets:webView.insets targetOrientation:orientation];
-	}];
-}
-
 @end
 
-
-// Helper method to create C string copy
 NSString* UniWebViewMakeNSString (const char* string) {
 	if (string) {
 		return [NSString stringWithUTF8String: string];
@@ -627,12 +563,7 @@ extern "C" {
 	
 	void _ClearCookies(const char *name);
 	
-	//void _CleanCache(const char *name);
-	
 	void _Destroy(const char *name);
-
-	//int _ScreenHeight();
-	//int _ScreenWidth();
 }
 
 void _Init(const char *name) {
@@ -658,10 +589,6 @@ void _Hide(const char *name) {
 	[[UniWebViewManager sharedManager] webViewName:UniWebViewMakeNSString(name) show:NO];
 }
 
-/*void _CleanCache(const char *name) {
-	[[UniWebViewManager sharedManager] webViewNameCleanCache:UniWebViewMakeNSString(name)];
-}*/
-
 void _ClearCookies(const char *name) {
 	[[UniWebViewManager sharedManager] webViewNameCleanCookies:UniWebViewMakeNSString(name)];
 }
@@ -669,27 +596,3 @@ void _ClearCookies(const char *name) {
 void _Destroy(const char *name) {
 	[[UniWebViewManager sharedManager] removeWebViewName:UniWebViewMakeNSString(name)];
 }
-
-/*int _ScreenHeight() {
-	if (BELOW_IOS_8) {
-		if (UnityCurrentOrientation() == landscapeLeft || UnityCurrentOrientation() == landscapeRight) {
-			return UnityGetGLViewController().view.frame.size.width;
-		} else {
-			return UnityGetGLViewController().view.frame.size.height;
-		}
-	} else {
-		return UnityGetGLViewController().view.frame.size.height;
-	}
-}
-
-int _ScreenWidth() {
-	if (BELOW_IOS_8) {
-		if (UnityCurrentOrientation() == landscapeLeft || UnityCurrentOrientation() == landscapeRight) {
-			return UnityGetGLViewController().view.frame.size.height;
-		} else {
-			return UnityGetGLViewController().view.frame.size.width;
-		}
-	} else {
-		return UnityGetGLViewController().view.frame.size.width;
-	}
-}*/
