@@ -558,7 +558,7 @@ namespace Odnoklassniki
 			});
 		}
 
-		public void AppInvite(string[] uids, string[] devices, string text, OKRequestCallback callback)
+		private void AppInvite(string[] uids, string[] devices, string text, OKRequestCallback callback)
 		{
 			Api(OKMethod.SDK.appInvite,
 				new Dictionary<string, string> {
@@ -913,7 +913,7 @@ namespace Odnoklassniki
 			webView = gameObject.GetComponent<OKWebView>();
 			if (webView == null)
 			{
-				gameObject.AddComponent<OKWebView>();
+				webView = gameObject.AddComponent<OKWebView>();
 			}
 			webView.Load(url);
 			webView.Show(showDelay);
