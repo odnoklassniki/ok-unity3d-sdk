@@ -13,7 +13,7 @@ public class OKSettings : ScriptableObject
 
 	public const string SDK_VERSION = "2";
 	public const string CLIENT_TYPE = "SDK_UNITY3D";
-	public const string CLIENT_VERSION = "1.0.0";
+	public const string CLIENT_VERSION = "1.0.1";
 
 	const string OdnoklassnikiSettingsAssetName = "OdnoklassnikiSettings";
 	const string OdnoklassnikiSettingsPath = "Odnoklassniki/Resources";
@@ -57,24 +57,26 @@ public class OKSettings : ScriptableObject
 		Selection.activeObject = Instance;
 	}
 
-	[MenuItem("Odnoklassniki/Developers Page")]
+	[MenuItem("Odnoklassniki/Open Application Page")]
 	public static void OpenAppPage()
 	{
-		string url = string.Format("http://ok.ru/dk?st.cmd=appEdit&st.appId={0}&st._aid=App_Main_EditApp", AppId);
+		string url = string.Format("http://ok.ru/game/{0}", AppId);
 		Application.OpenURL(url);
 	}
 
 	[MenuItem("Odnoklassniki/SDK Documentation")]
 	public static void OpenDocumentation()
 	{
-		string url = "http://apiok.ru";
+		string url = "https://github.com/odnoklassniki/ok-unity3d-sdk";
 		Application.OpenURL(url);
 	}
 
 	[MenuItem("Odnoklassniki/Report a SDK Bug")]
 	public static void ReportABug()
 	{
-		string url = "mailto:api-support@odnoklassniki.ru";
+		string subject = "Unity 3D sdk bug";
+		string body = "Client version: " + CLIENT_VERSION;
+		string url = string.Format("mailto:api-support@ok.ru?subject={0}&body={1}", subject, body);
 		Application.OpenURL(url);
 	}
 #endif
