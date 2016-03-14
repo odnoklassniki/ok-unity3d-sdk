@@ -13,7 +13,7 @@ public class OKSettings : ScriptableObject
 
 	public const string SDK_VERSION = "2";
 	public const string CLIENT_TYPE = "SDK_UNITY3D";
-	public const string CLIENT_VERSION = "1.0.1";
+	public const string CLIENT_VERSION = "1.0.2";
 
 	const string OdnoklassnikiSettingsAssetName = "OdnoklassnikiSettings";
 	const string OdnoklassnikiSettingsPath = "Odnoklassniki/Resources";
