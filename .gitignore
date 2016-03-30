@@ -5,3 +5,6 @@
 /Assets/AssetStoreTools*
 UnityVS*
 /ProjectSettings
+Assembly*
+unityok.sln
+unityok-csharp.sln
