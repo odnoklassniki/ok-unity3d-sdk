@@ -1,5 +1,8 @@
 ﻿using System.Collections;
 using UnityEngine;
+#if UNITY_5_3_OR_NEWER
+using UnityEngine.SceneManagement;
+#endif
 
 public class Loader : MonoBehaviour
 {
@@ -76,7 +79,11 @@ public class Loader : MonoBehaviour
 	{
 		Application.backgroundLoadingPriority = ThreadPriority.Low;
 
+#if UNITY_5_3_OR_NEWER
+		AsyncOperation async = SceneManager.LoadSceneAsync("MainMenu");
+#else
 		AsyncOperation async = Application.LoadLevelAsync("MainMenu");
+#endif
 		async.allowSceneActivation = false;
 
 		while (async.progress < 0.9f)

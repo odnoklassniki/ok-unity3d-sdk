@@ -11,19 +11,19 @@ extern ScreenOrientation UnityCurrentOrientation();
 
 extern "C" void UnitySendMessage(const char *, const char *, const char *);
 
-@interface UniWebViewToolBar : UIToolbar
+@interface WebViewToolBar : UIToolbar
 @property (nonatomic, retain) UIBarButtonItem *btnNext;
 @property (nonatomic, retain) UIBarButtonItem *btnBack;
 @property (nonatomic, retain) UIBarButtonItem *btnReload;
 @property (nonatomic, retain) UIBarButtonItem *btnDone;
 @end
 
-@implementation UniWebViewToolBar
+@implementation WebViewToolBar
 -(void)dealloc {
 }
 @end
 
-@interface UniWebSpinner : UIView
+@interface WebSpinner : UIView
 @property (nonatomic, retain) UIActivityIndicatorView *indicator;
 @property (nonatomic, retain) UILabel *textLabel;
 -(id) initWithFrame:(CGRect)frame;
@@ -31,7 +31,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 -(void) hide;
 @end
 
-@implementation UniWebSpinner
+@implementation WebSpinner
 -(id) initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:frame];
 	if (self) {
@@ -75,15 +75,15 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 @end
 
-@class UniWebView;
-@interface UniWebViewManager : NSObject
-+ (UniWebViewManager *) sharedManager;
-- (void)webViewDone:(UniWebView *)webView;
+@class WebView;
+@interface WebViewManager : NSObject
++ (WebViewManager *) sharedManager;
+- (void)webViewDone:(WebView *)webView;
 @end
 
-@interface UniWebView : UIWebView
-@property (nonatomic, retain) UniWebViewToolBar *toolBar;
-@property (nonatomic, retain) UniWebSpinner *spinner;
+@interface WebView : UIWebView
+@property (nonatomic, retain) WebViewToolBar *toolBar;
+@property (nonatomic, retain) WebSpinner *spinner;
 @property (nonatomic, assign) UIEdgeInsets insets;
 
 @property (nonatomic, assign) BOOL showSpinnerWhenLoading;
@@ -120,13 +120,13 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 
 @end
 
-@implementation UniWebView
+@implementation WebView
 -(id) initWithFrame:(CGRect)frame {
 	self = [super initWithFrame:frame];
 	if (self) {
 		CGRect toolBarFrame = CGRectMake(0, frame.size.height - 44, frame.size.width, 44);
 		_toolBar = ({
-			UniWebViewToolBar *toolBar = [[UniWebViewToolBar alloc] initWithFrame:toolBarFrame];
+			WebViewToolBar *toolBar = [[WebViewToolBar alloc] initWithFrame:toolBarFrame];
 
 			UIBarButtonItem *back = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(goBack)];
 			UIBarButtonItem *forward = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFastForward target:self action:@selector(goForward)];
@@ -146,12 +146,12 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 			toolBar;
 		});
 
-		_schemes = [[NSMutableArray alloc] initWithObjects:@"uniwebview", nil];
+		_schemes = [[NSMutableArray alloc] initWithObjects:@"Webview", nil];
 
 		_showSpinnerWhenLoading = YES;
 
 		_spinner = ({
-			UniWebSpinner *spinner = [[UniWebSpinner alloc] initWithFrame:CGRectMake(frame.size.width / 2 - 65, frame.size.height / 2 - 65, 130, 130)];
+			WebSpinner *spinner = [[WebSpinner alloc] initWithFrame:CGRectMake(frame.size.width / 2 - 65, frame.size.height / 2 - 65, 130, 130)];
 			[spinner hide];
 			spinner;
 		});
@@ -185,14 +185,14 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void) btnDonePressed:(id)sender {
-	[[UniWebViewManager sharedManager] webViewDone:self];
+	[[WebViewManager sharedManager] webViewDone:self];
 }
 
 -(void) btnReloadPressed:(id)sender {
 	if (!self.loading) {
 		[self reload];
 	} else {
-		NSLog(@"UniWebView can not reload because some content is being loading right now.");
+		NSLog(@"WebView can not reload because some content is being loading right now.");
 	}
 }
 
@@ -232,18 +232,18 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 @end
 
-@interface UniWebViewManager()<UIWebViewDelegate> {
+@interface WebViewManager()<UIWebViewDelegate> {
 	NSMutableDictionary *_webViewDic;
 	ScreenOrientation _orientationBeforeFullScreen;
 	BOOL _multipleOrientation;
 }
 @end
 
-@implementation UniWebViewManager
-+ (UniWebViewManager *) sharedManager {
+@implementation WebViewManager
++ (WebViewManager *) sharedManager {
 	static dispatch_once_t once;
-	static UniWebViewManager *instance;
-	dispatch_once(&once, ^ { instance = [[UniWebViewManager alloc] init]; });
+	static WebViewManager *instance;
+	dispatch_once(&once, ^ { instance = [[WebViewManager alloc] init]; });
 	return instance;
 }
 
@@ -275,7 +275,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 	}];
 }
 
--(void) addManagedWebView:(UniWebView *)webView forName:(NSString *)name {
+-(void) addManagedWebView:(WebView *)webView forName:(NSString *)name {
 	if (![_webViewDic objectForKey:name]) {
 		[_webViewDic setObject:webView forKey:name];
 	} else {
@@ -285,7 +285,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 
 -(void) addManagedWebViewName:(NSString *)name insets:(UIEdgeInsets)insets {
 	UIView *unityView = UnityGetGLViewController().view;
-	UniWebView *webView = [[UniWebView alloc] initWithFrame:unityView.frame];
+	WebView *webView = [[WebView alloc] initWithFrame:unityView.frame];
 	webView.mediaPlaybackRequiresUserAction = NO;
 
 	[self changeWebView:webView insets:insets];
@@ -298,16 +298,16 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void) changeWebViewName:(NSString *)name insets:(UIEdgeInsets)insets {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	[self changeWebView:webView insets:insets];
 }
 
--(void) changeWebView:(UniWebView *)webView insets:(UIEdgeInsets)insets {
+-(void) changeWebView:(WebView *)webView insets:(UIEdgeInsets)insets {
 	[webView changeToInsets:insets targetOrientation:UnityCurrentOrientation()];
 }
 
 -(void) webviewName:(NSString *)name beginLoadURL:(NSString *)urlString {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	NSURL *url = [NSURL URLWithString:urlString];
 	NSURLRequest *request = [NSURLRequest requestWithURL:url];
 
@@ -315,19 +315,19 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void) webViewNameReload:(NSString *)name {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	[webView reload];
 }
 
 -(void) webViewNameStop:(NSString *)name {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	if ([webView isLoading]) {
 		[webView stopLoading];
 	}
 }
 
 -(void) webViewNameCleanCache:(NSString *)name {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	[[NSURLCache sharedURLCache] removeCachedResponseForRequest:webView.request];
 }
 
@@ -344,7 +344,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void) webViewName:(NSString *)name show:(BOOL)show {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	webView.hidden = !show;
 	
 	if (!show) {
@@ -353,7 +353,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void) removeWebViewName:(NSString *)name {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	webView.delegate = nil;
 	
 	[webView removeFromSuperview];
@@ -363,7 +363,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void) updateBackgroundWebViewName:(NSString *)name transparent:(BOOL)transparent {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	webView.opaque = !transparent;
 	webView.backgroundColor = transparent ? [UIColor clearColor] : [UIColor whiteColor];
 	for (UIView* subView in [webView subviews]) {
@@ -378,7 +378,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void) webViewName:(NSString *)name showToolBarAnimate:(BOOL)animate {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	if (webView.toolBar.hidden) {
 		if (animate) {
 			CGRect oldFrame = webView.toolBar.frame;
@@ -394,7 +394,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void) webViewName:(NSString *)name hideToolBarAnimate:(BOOL)animate {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	if (!webView.toolBar.hidden) {
 		if (animate) {
 			CGRect oldFrame = webView.toolBar.frame;
@@ -411,43 +411,43 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 -(void) goBackWebViewName:(NSString *)name {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	[webView goBack];
 }
 
 -(void) goForwardWebViewName:(NSString *)name {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	[webView goForward];
 }
 
 -(void) webViewName:(NSString *)name setZoomEnable:(BOOL)enable {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	webView.scalesPageToFit = enable;
 }
 
 -(void) webViewName:(NSString *)name setBounces:(BOOL)bounces {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	[webView setBounces:bounces];
 }
 
 -(void) webViewName:(NSString *)name loadHTMLString:(NSString *)htmlString baseURLString:(NSString *)baseURL {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	[webView loadHTMLString:htmlString baseURL:[NSURL URLWithString:baseURL]];
 }
 
 -(void) webViewName:(NSString *)name setSpinnerShowWhenLoading:(BOOL)show {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	webView.showSpinnerWhenLoading = show;
 }
 
 -(void) webViewName:(NSString *)name setSpinnerText:(NSString *)text {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	if (text) {
 		webView.spinner.textLabel.text = text;
 	}
 }
 
--(NSString *) webViewName:(UniWebView *)webView {
+-(NSString *) webViewName:(WebView *)webView {
 	NSString *webViewName = [[_webViewDic allKeysForObject:webView] lastObject];
 	if (!webViewName) {
 		NSLog(@"Did not find the webview: %@",webViewName);
@@ -456,26 +456,26 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 }
 
 - (void)webViewName:(NSString *)name addUrlScheme:(NSString *)scheme {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	if (![webView.schemes containsObject:scheme]) {
 		[webView.schemes addObject:scheme];
 	}
 }
 
 - (void)webViewName:(NSString *)name removeUrlScheme:(NSString *)scheme {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	if ([webView.schemes containsObject:scheme]) {
 		[webView.schemes removeObject:scheme];
 	}
 }
 
-- (void)webViewDidStartLoad:(UniWebView *)webView {
+- (void)webViewDidStartLoad:(WebView *)webView {
 	if (webView.showSpinnerWhenLoading && !webView.hidden) {
 		[webView.spinner show];
 	}
 }
 
-- (void)webViewDidFinishLoad:(UniWebView *)webView {
+- (void)webViewDidFinishLoad:(WebView *)webView {
 	[webView.spinner hide];
 	NSString *webViewName = [self webViewName:webView];
 	[webView updateToolBtn];
@@ -484,7 +484,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 	UnitySendMessage([webViewName UTF8String], "LoadComplete", "");
 }
 
-- (void)webView:(UniWebView *)webView didFailLoadWithError:(NSError *)error {
+- (void)webView:(WebView *)webView didFailLoadWithError:(NSError *)error {
 	[webView.spinner hide];
 	NSString *webViewName = [self webViewName:webView];
 	[webView updateToolBtn];
@@ -493,18 +493,18 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 	UnitySendMessage([webViewName UTF8String], "LoadComplete", [error.localizedDescription UTF8String]);
 }
 
-- (void)webViewDone:(UniWebView *)webView {
+- (void)webViewDone:(WebView *)webView {
 	[webView.spinner hide];
 	NSString *webViewName = [self webViewName:webView];
 	UnitySendMessage([webViewName UTF8String], "WebViewDone", "");
 }
 
 -(NSString *) webViewNameGetCurrentUrl:(NSString *)name {
-	UniWebView *webView = [_webViewDic objectForKey:name];
+	WebView *webView = [_webViewDic objectForKey:name];
 	return webView.currentUrl ?: @"";
 }
 
--(BOOL)webView:(UniWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
+-(BOOL)webView:(WebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
 	NSString *webViewName = [self webViewName:webView];
 
 	__block BOOL canResponse = NO;
@@ -527,14 +527,14 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 
 -(void) orientationChanged:(NSNotification *)noti {
 	[_webViewDic enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-		UniWebView *webView = (UniWebView *)obj;
+		WebView *webView = (WebView *)obj;
 		[webView changeToInsets:webView.insets targetOrientation:UnityCurrentOrientation()];
 	}];
 }
 
 @end
 
-NSString* UniWebViewMakeNSString (const char* string) {
+NSString* WebViewMakeNSString (const char* string) {
 	if (string) {
 		return [NSString stringWithUTF8String: string];
 	} else {
@@ -542,7 +542,7 @@ NSString* UniWebViewMakeNSString (const char* string) {
 	}
 }
 
-char* UniWebViewMakeCString(NSString *str) {
+char* WebViewMakeCString(NSString *str) {
 	const char* string = [str UTF8String];
 	if (string == NULL) {
 		return NULL;
@@ -562,37 +562,37 @@ extern "C" {
 	void _Hide(const char *name);
 	
 	void _ClearCookies(const char *name);
-	
+
 	void _Destroy(const char *name);
 }
 
 void _Init(const char *name) {
 	UIEdgeInsets insets = UIEdgeInsetsMake(0, 0, 0, 0);
-	[[UniWebViewManager sharedManager] addManagedWebViewName:UniWebViewMakeNSString(name) insets:insets];
+	[[WebViewManager sharedManager] addManagedWebViewName:WebViewMakeNSString(name) insets:insets];
 }
 
 void _Resize(const char *name) {
 	UIEdgeInsets insets = UIEdgeInsetsMake(0, 0, 0, 0);
-	[[UniWebViewManager sharedManager] changeWebViewName:UniWebViewMakeNSString(name) insets:insets];
+	[[WebViewManager sharedManager] changeWebViewName:WebViewMakeNSString(name) insets:insets];
 }
 
 void _Load(const char *name, const char *url) {
-	[[UniWebViewManager sharedManager] webviewName:UniWebViewMakeNSString(name)
-									  beginLoadURL:UniWebViewMakeNSString(url)];
+	[[WebViewManager sharedManager] webviewName:WebViewMakeNSString(name)
+									  beginLoadURL:WebViewMakeNSString(url)];
 }
 
 void _Show(const char *name) {
-	[[UniWebViewManager sharedManager] webViewName:UniWebViewMakeNSString(name) show:YES];
+	[[WebViewManager sharedManager] webViewName:WebViewMakeNSString(name) show:YES];
 }
 
 void _Hide(const char *name) {
-	[[UniWebViewManager sharedManager] webViewName:UniWebViewMakeNSString(name) show:NO];
+	[[WebViewManager sharedManager] webViewName:WebViewMakeNSString(name) show:NO];
 }
 
 void _ClearCookies(const char *name) {
-	[[UniWebViewManager sharedManager] webViewNameCleanCookies:UniWebViewMakeNSString(name)];
+	[[WebViewManager sharedManager] webViewNameCleanCookies:WebViewMakeNSString(name)];
 }
 
 void _Destroy(const char *name) {
-	[[UniWebViewManager sharedManager] removeWebViewName:UniWebViewMakeNSString(name)];
+	[[WebViewManager sharedManager] removeWebViewName:WebViewMakeNSString(name)];
 }

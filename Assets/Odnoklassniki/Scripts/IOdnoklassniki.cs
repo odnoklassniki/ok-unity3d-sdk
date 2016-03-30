@@ -23,6 +23,8 @@ namespace Odnoklassniki
 
 		void ClearTokens(bool clearCookies = true);
 
+		bool IsOdnoklassnikiNativeAppInstalled();
+
 		#region Helper methods
 
 		bool OpenInviteDialog(OKRequestCallback callback, string defaultMessage, string[] selected);

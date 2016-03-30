@@ -6,20 +6,45 @@ namespace Odnoklassniki
 	{
 		private const string AndroidAppUrl = "okauth://ok{0}";
 
+#if UNITY_ANDROID
+		private AndroidJavaClass android;
+
+		private AndroidJavaClass Android
+		{
+			get
+			{
+				if (android == null)
+				{
+					android = new AndroidJavaClass("ru.odnoklassniki.unity.OKAndroidPlugin");
+				}
+				return android;
+			}
+		}
+#endif
+
 		protected override bool SsoAuth()
 		{
 			if (!base.SsoAuth()) return false;
-		 
 #if UNITY_ANDROID
-			AndroidJavaClass unityOKAndroidPlugin = new AndroidJavaClass("ru.odnoklassniki.unity.OKAndroidPlugin");
-			unityOKAndroidPlugin.CallStatic("SSOAuth", AppId, appSecretKey, scope);
-#endif
+			Android.CallStatic("SSOAuth", AppId, appSecretKey, scope);
 			return true;
+#else
+			return false;
+#endif
 		}
 
 		protected override string GetAppUrl()
 		{
 			return string.Format(AndroidAppUrl, AppId);
+		}
+
+		public override bool IsOdnoklassnikiNativeAppInstalled()
+		{
+#if UNITY_ANDROID
+			return Android.CallStatic<bool>("CheckNativeApp");
+#else
+			return false;
+#endif
 		}
 
 		public void SSOAuthSuccessAndroid(string data)

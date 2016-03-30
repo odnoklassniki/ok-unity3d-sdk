@@ -6,6 +6,8 @@ public class MainMenu : MonoBehaviour {
 	public Button OKLoginButton;
 	public Button OKLogoutButton;
 
+	public Text LocalizationText;
+
 	public void Play()
 	{
 		Application.LoadLevel("NewGame");
@@ -14,6 +16,7 @@ public class MainMenu : MonoBehaviour {
 	public void Awake()
 	{
 		CheckLoginButton();
+		if (LocalizationText) LocalizationText.text = Application.systemLanguage.ToString();
 	}
 
 	private void CheckLoginButton()
