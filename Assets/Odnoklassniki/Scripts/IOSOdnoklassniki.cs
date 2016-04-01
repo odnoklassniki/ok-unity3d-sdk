@@ -16,6 +16,11 @@ namespace Odnoklassniki
 			return true;
 		}
 
+		public override bool IsOdnoklassnikiNativeAppInstalled()
+		{
+			return OKAppAuthIOS.IsNativeAppInstalled(AppId, scope);
+		}
+
 		protected override string GetAppUrl()
 		{
 			return string.Format(IOSAppUrl, AppId);

@@ -138,6 +138,11 @@ public sealed class OK : ScriptableObject
 		API(query, HTTP.Method.GET, new Dictionary<string, string>(), callback);
 	}
 
+	public static bool NativeAppInstalled()
+	{
+		return OdnoklassnikiImpl.IsOdnoklassnikiNativeAppInstalled();
+	}
+
 	#region Android-Only Implemented Methods
 	#endregion
 

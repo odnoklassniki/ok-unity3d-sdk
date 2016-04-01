@@ -1,0 +1,10 @@
+/Library*
+/Temp
+/obj
+/Assets/UnityVS*
+/Assets/AssetStoreTools*
+UnityVS*
+Assembly*
+unityok.sln
+unityok-csharp.sln
+ok-unity3d-sdk*

@@ -558,6 +558,8 @@ namespace Odnoklassniki
 			});
 		}
 
+		public abstract bool IsOdnoklassnikiNativeAppInstalled ();
+
 		private void AppInvite(string[] uids, string[] devices, string text, OKRequestCallback callback)
 		{
 			Api(OKMethod.SDK.appInvite,
