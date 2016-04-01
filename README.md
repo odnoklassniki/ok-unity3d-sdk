@@ -16,8 +16,9 @@ An application registered within OK platform should have:
 Setup
 -------
 
-1. Fill in application parameters in `OdnoklassnikiSettings.asset`
-2. Add the following entries to your `android.manifest` 
+1. Based on which Unity major version you are using (4 or 5), you should retain the corresponding DLL file and delete the other (`odnoklassniki_unity4.dll` / `odnoklassiki_unity5.dll` in `Assets/Plugins`) - make sure that GUID of the given DLL stays the same, since if changed, it may break included prefabs.
+2. Fill in application parameters in `OdnoklassnikiSettings.asset`
+3. Add the following entries to your `android.manifest` 
 
 * within **application** tag
 ```
