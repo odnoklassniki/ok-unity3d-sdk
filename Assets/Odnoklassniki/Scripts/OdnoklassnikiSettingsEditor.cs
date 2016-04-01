@@ -30,6 +30,8 @@ public class OdnoklassnikiSettingsEditor : Editor
 	GUIContent photoContentLabel = new GUIContent("Photo Content [?]:", "Permission to upload photos and create/edit albums");
 	GUIContent videoContentLabel = new GUIContent("Video Content [?]:", "Permission to upload videos");
 	GUIContent groupContentLabel = new GUIContent("Group Content [?]:", "Permission to create/edit groups");
+	GUIContent longAccessTokenLabel = new GUIContent("Long Access Token [?]:", "Permission to have extended access token");
+	GUIContent customScopesLabel = new GUIContent("Custom Scopes [?]:", "Specify other permissions separated by comma");
 
 	//Init params
 	GUIContent forceOAuthLabel = new GUIContent("Force OAUth [?]", "Force authorization via browser instead of authorization via native Android/iOS OK application");
@@ -81,7 +83,7 @@ public class OdnoklassnikiSettingsEditor : Editor
 		EditorGUILayout.HelpBox("2) Set required permissions for the game", MessageType.None);
 		showPermissions = EditorGUILayout.Foldout(showPermissions, "OK Application Permissions");
 		if (showPermissions)
-		{		
+		{
 			OKSettings.SetScope(OKScope.VALUABLE_ACCESS, EditorGUILayout.Toggle(valuableAccessLabel, OKSettings.HasScope(OKScope.VALUABLE_ACCESS)));
 			OKSettings.SetScope(OKScope.SET_STATUS, EditorGUILayout.Toggle(setStatusLabel, OKSettings.HasScope(OKScope.SET_STATUS)));
 			OKSettings.SetScope(OKScope.APP_INVITE, EditorGUILayout.Toggle(appInviteLabel, OKSettings.HasScope(OKScope.APP_INVITE)));
@@ -89,6 +91,9 @@ public class OdnoklassnikiSettingsEditor : Editor
 			OKSettings.SetScope(OKScope.PHOTO_CONTENT, EditorGUILayout.Toggle(photoContentLabel, OKSettings.HasScope(OKScope.PHOTO_CONTENT)));
 			OKSettings.SetScope(OKScope.VIDEO_CONTENT, EditorGUILayout.Toggle(videoContentLabel, OKSettings.HasScope(OKScope.VIDEO_CONTENT)));
 			OKSettings.SetScope(OKScope.GROUP_CONTENT, EditorGUILayout.Toggle(groupContentLabel, OKSettings.HasScope(OKScope.GROUP_CONTENT)));
+			OKSettings.SetScope(OKScope.LONG_ACCESS_TOKEN, EditorGUILayout.Toggle(longAccessTokenLabel, OKSettings.HasScope(OKScope.LONG_ACCESS_TOKEN)));
+
+			OKSettings.SetCustomScopes(EditorGUILayout.TextField(customScopesLabel, OKSettings.GetCustomScopes()));
 		}
 
 		EditorGUILayout.Space();
