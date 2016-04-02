@@ -13,7 +13,7 @@ public class OKSettings : ScriptableObject
 
 	public const string SDK_VERSION = "2";
 	public const string CLIENT_TYPE = "SDK_UNITY3D";
-	public const string CLIENT_VERSION = "1.0.3";
+	public const string CLIENT_VERSION = "1.0.4";
 
 	const string OdnoklassnikiSettingsAssetName = "OdnoklassnikiSettings";
 	const string OdnoklassnikiSettingsPath = "Odnoklassniki/Resources";
@@ -124,7 +124,7 @@ public class OKSettings : ScriptableObject
 		get { return Instance.scope.GetScope(); }
 	}
 
-	public static void SetScope(OKScope scope, bool value)
+	public static void SetScope(string scope, bool value)
 	{
 		if (Instance.scope.HasScope(scope) != value)
 		{
@@ -133,7 +133,21 @@ public class OKSettings : ScriptableObject
 		}
 	}
 
-	public static bool HasScope(OKScope scope)
+	public static void SetCustomScopes(string scopes)
+	{
+		if (!Instance.scope.HasCustomScopes(scopes))
+		{
+			Instance.scope.SetCustomScopes(scopes);
+			DirtyEditor();
+		}
+	}
+
+	public static string GetCustomScopes()
+	{
+		return Instance.scope.GetCustomScopes();
+	}
+
+	public static bool HasScope(string scope)
 	{
 		return Instance.scope.HasScope(scope);
 	}
@@ -275,9 +289,12 @@ public class OKSettings : ScriptableObject
 public class OKScopeSettings
 {
 	[SerializeField]
-	private List<OKScope> scopes = new List<OKScope>();
+	private List<string> scopes = new List<string>();
 
-	public void SetScope(OKScope scope, bool enabled)
+	[SerializeField]
+	string[] customScopes = new string[0];
+
+	public void SetScope(string scope, bool enabled)
 	{
 		if (enabled)
 		{
@@ -292,13 +309,34 @@ public class OKScopeSettings
 		}
 	}
 
-	public bool HasScope(OKScope scope)
+	public bool HasScope(string scope)
 	{
 		return scopes.Contains(scope);
 	}
 
+	public void SetCustomScopes(string scope)
+	{
+		if (string.IsNullOrEmpty(scope))
+		{
+			customScopes = new string[0];
+		} else
+		{
+			customScopes = scope.Split(',');
+		}
+	}
+
+	public bool HasCustomScopes(string scope)
+	{
+		return customScopes.Equals(scope.Split(','));
+	}
+
+	public string GetCustomScopes()
+	{
+		return string.Join(",", customScopes);
+	}
+
 	public string GetScope()
 	{
-		return string.Join(",", scopes.Select(i => i.ToString()).ToArray());
-	}
+		return string.Join(",", scopes.ToArray().Concat(customScopes).ToArray()).Replace(" ", "");
+	}	
 }

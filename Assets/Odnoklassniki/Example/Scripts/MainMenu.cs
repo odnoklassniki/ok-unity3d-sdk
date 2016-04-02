@@ -15,6 +15,14 @@ public class MainMenu : MonoBehaviour {
 
 	public void Awake()
 	{
+		OK.Init(initSuccess =>
+		{
+			if (!initSuccess)
+			{
+				Debug.Log("OK.Init() failed :(");
+			}
+		});
+
 		CheckLoginButton();
 		if (LocalizationText) LocalizationText.text = Application.systemLanguage.ToString();
 	}
@@ -35,16 +43,7 @@ public class MainMenu : MonoBehaviour {
 
 	public void LoginWithOK()
 	{
-		OK.Init(initSuccess =>
-		{
-			if (!initSuccess)
-			{
-				Debug.Log("OK.Init() failed :(");
-				return;
-			}
-
-			OK.Auth(success => CheckLoginButton());
-		});
+		OK.Auth(success => CheckLoginButton());
 	}
 
 	public void Logout()

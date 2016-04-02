@@ -44,21 +44,75 @@ namespace Odnoklassniki
 		private const int AccessTokenDuration = 1800; //access token expiration time in seconds
 		private const int RefreshTokenDuration = 30; //access token expiration time in days
 
+		private const string PrefsSessionSecretKey = "unityok_session_secret_key";
+		private const string PrefsAccessToken = "unityok_access_token";
+		private const string PrefsRefreshToken= "unityok_refresh_token";
+		private const string PrefsAccessTokenExpiration = "unityok_access_token_expiration";
+		private const string PrefsRefreshTokenExpiration = "unityok_refresh_token_expiration";
+		private const string PrefsAuthType = "unityok_auth_type";
+
 		#endregion
 
-		protected OKAuthType AuthType { get; set; }
+		protected OKAuthType AuthType
+		{
+			get
+			{
+				return (OKAuthType) Enum.Parse(typeof(OKAuthType), PlayerPrefs.GetString(PrefsAuthType));
+			}
+			set { PlayerPrefs.SetString(PrefsAuthType, value.ToString()); }
+		}
 
-		protected string SessionSecretKey { get; set; }
+		protected string SessionSecretKey {
+			get { return PlayerPrefs.GetString(PrefsSessionSecretKey); }
+			set { PlayerPrefs.SetString(PrefsSessionSecretKey, value); }
+		}
 
 		public string AppId { get; protected set; }
 
-		public string AccessToken { get; protected set; }
+		public string AccessToken
+		{
+			get { return PlayerPrefs.GetString(PrefsAccessToken); }
+			set { PlayerPrefs.SetString(PrefsAccessToken, value); }
+		}
 
-		protected string RefreshToken { get; set; }
+		protected string RefreshToken
+		{
+			get { return PlayerPrefs.GetString(PrefsRefreshToken); }
+			set { PlayerPrefs.SetString(PrefsRefreshToken, value); }
+		}
 
-		public DateTime AccessTokenExpiresAt { get; protected set; }
+		public DateTime AccessTokenExpiresAt
+		{
+			get
+			{
+				DateTime dateTime;
+				if (DateTime.TryParse(PlayerPrefs.GetString(PrefsAccessTokenExpiration), out dateTime))
+				{
+					return dateTime;
+				}
+				else {
+					return DateTime.Now;
+				}
 
-		protected DateTime RefreshTokenExpiresAt { get; set; }
+			}
+			set { PlayerPrefs.SetString(PrefsAccessTokenExpiration, value.ToString()); }
+		}
+
+		protected DateTime RefreshTokenExpiresAt
+		{
+			get
+			{
+				DateTime dateTime;
+				if (DateTime.TryParse(PlayerPrefs.GetString(PrefsRefreshTokenExpiration), out dateTime))
+				{
+					return dateTime;
+				} else {
+					return DateTime.Now;
+				}
+
+			}
+			set { PlayerPrefs.SetString(PrefsRefreshTokenExpiration, value.ToString()); }
+		}
 
 		public bool IsInitialized { get; set; }
 
@@ -80,7 +134,6 @@ namespace Odnoklassniki
 			fallbackToOAuth = OKSettings.FallbackToOAuth;
 			HTTP.Request.LogAllRequests = OKSettings.LogAllRequests;
 			httpFormat = OKSettings.UseXML ? HTTP.Format.XML : HTTP.Format.JSON;
-			AuthType = OKAuthType.None;
 			scope = OKSettings.Scope;
 			debugAccessToken = OKSettings.DebugAccessToken;
 			debugSessionKey = OKSettings.DebugSessionKey;
@@ -381,7 +434,6 @@ namespace Odnoklassniki
 		{
 			if (AuthType == OKAuthType.OAuth)
 			{
-				//Debug.Log(string.Format("{0}{1}", URLParams(args, "", false), SessionSecretKey));
 				return Encryption.Md5string(string.Format("{0}{1}", URLParams(args, "", false), SessionSecretKey)).ToLower();
 			}
 
@@ -769,10 +821,17 @@ namespace Odnoklassniki
 						uids.Remove(appUser);
 					}
 					string[] fields = { OKUserInfo.Field.pic128x128, OKUserInfo.Field.name };
-					GetInfo(ToStringArray(uids), fields, false, users =>
+
+					if (uids.Count > 0)
 					{
-						OKWidgets.OpenInviteDialog(callback, onClosed, users, defaultMessage, selected, AppInvite);
-					});
+						GetInfo(ToStringArray(uids), fields, false, users =>
+						{
+							OKWidgets.OpenInviteDialog(callback, onClosed, users, defaultMessage, selected, AppInvite);
+						});
+					} else
+					{
+						OKWidgets.OpenInviteDialog(callback, onClosed, new OKUserInfo[0], defaultMessage, new string[0], AppInvite);
+					}
 				});
 			});
 			return true;
@@ -796,10 +855,18 @@ namespace Odnoklassniki
 				ArrayList uids = response.Array;
 				string[] fields = { OKUserInfo.Field.pic128x128, OKUserInfo.Field.name };
 
-				GetInfo(ToStringArray(uids), fields, false, users =>
+				if (uids.Count > 0)
 				{
-					OKWidgets.OpenSuggestDialog(callback, onClosed, users, defaultMessage, selected, AppSuggest);
-				});
+					GetInfo(ToStringArray(uids), fields, false, users =>
+					{
+						OKWidgets.OpenSuggestDialog(callback, onClosed, users, defaultMessage, selected, AppSuggest);
+					});
+				}
+				else
+				{
+					OKWidgets.OpenSuggestDialog(callback, onClosed, new OKUserInfo[0], defaultMessage, new string[0], AppSuggest);
+				}
+				
 			});
 			return true;
 		}
