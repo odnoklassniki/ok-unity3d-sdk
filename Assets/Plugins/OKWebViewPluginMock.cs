@@ -2,45 +2,48 @@
 using UnityEngine;
 using System.Collections;
 
-public class OKWebViewPlugin {
+namespace Odnoklassniki.WebView {
 
-	public static void Init(string gameObject)
-	{
-		Warning();
-	}
+	public class OKWebViewPlugin {
 
-	public static void Load(string url)
-	{
-		Warning();
-	}
+		public static void Init(string gameObject)
+		{
+			Warning();
+		}
 
-	public static void Show()
-	{
-		Warning();
-	}
+		public static void Load(string url)
+		{
+			Warning();
+		}
 
-	public static void Hide()
-	{
-		Warning();
-	}
+		public static void Show()
+		{
+			Warning();
+		}
 
-	public static void ClearCookies()
-	{
-		Warning();
-	}
+		public static void Hide()
+		{
+			Warning();
+		}
 
-	public static void Destroy()
-	{
-		Warning();
-	}
+		public static void ClearCookies()
+		{
+			Warning();
+		}
 
-	private static void Warning()
-	{
-		Debug.LogWarning("Web view plugin not available for " + Application.platform);
-	}
+		public static void Destroy()
+		{
+			Warning();
+		}
 
-	public static void Resize() {
-		Warning();
+		private static void Warning()
+		{
+			Debug.LogWarning("Web view plugin not available for " + Application.platform);
+		}
+
+		public static void Resize() {
+			Warning();
+		}
 	}
 }
 #endif

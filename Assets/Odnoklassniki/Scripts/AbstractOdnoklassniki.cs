@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
-using Json;
+using Odnoklassniki.HTTP;
+using Odnoklassniki.Util;
+using Odnoklassniki.WebView;
 
 namespace Odnoklassniki
 {
@@ -442,8 +444,6 @@ namespace Odnoklassniki
 				string md5Secret = Encryption.Md5string(AccessToken + appSecretKey);
 				return Encryption.Md5string(URLParams(args, "", false) + md5Secret);
 			}
-
-			Debug.LogError("Cannot calculate sig - invalid auth type: " + AuthType);
 			return "";
 		}
 
@@ -456,12 +456,6 @@ namespace Odnoklassniki
 
 		private void Api(string query, HTTP.Method method, HTTP.Format format, Dictionary<string, string> args, OKRequestCallback callback)
 		{
-			if (!IsAuthorized)
-			{
-				Debug.Log("Cannot call API:" + query + ": Not authorized");
-				return;
-			}
-
 			args.Add("application_key", appKey);
 			args.Add("method", query);
 			args.Add("format", format.ToString());
@@ -474,8 +468,37 @@ namespace Odnoklassniki
 				{
 					if (obj.ContainsKey("error_code"))
 					{
-						Debug.Log(query + " failed -> " + request.response.Error);
-						callback(request.response);
+						string errorCode = obj["error_code"].ToString();
+						string errorMsg = obj["error_msg"].ToString();
+						switch (errorCode)
+						{
+							case "100":
+								if (errorMsg == "PARAM : Missed required parameter: access_token")
+								{
+									Debug.Log("Missing access token - trying to auto refresh session");
+									RefreshAuth(refreshed => {
+										Debug.Log("REFRESHED: " + refreshed);
+									});
+								}
+								break;
+							case "102":
+								Debug.Log("Session expired - trying to auto refresh session");
+								RefreshAuth(refreshed => {
+									Debug.Log("REFRESHED: " + refreshed);
+								});
+								break;
+							case "103":
+								Debug.Log("Invalid session key - trying to auto refresh session");
+								RefreshAuth(refreshed => {
+									Debug.Log("REFRESHED: " + refreshed);
+								});
+								break;
+							default:
+								Debug.LogWarning(query + " failed -> " + request.response.Error);
+								callback(request.response);
+								break;
+
+						}
 						return;
 					}
 				}
@@ -641,6 +664,11 @@ namespace Odnoklassniki
 			);
 		}
 
+		public virtual string GetAdvertisingId()
+		{
+			throw new NotImplementedException("AdvertisingId only available for Android");
+		}
+
 		private void Publish(Hashtable attachment, OKRequestCallback callback)
 		{
 			Api(OKMethod.SDK.post,
@@ -653,7 +681,7 @@ namespace Odnoklassniki
 			);
 		}
 
-		private void UploadToAlbum(Texture2D texture, string albumId, Action<string> callback)
+		private void UploadToAlbum(Texture2D texture, string albumId, Action<Texture2D, string> callback)
 		{
 			Api("photosV2.getUploadUrl", 
 				new Dictionary<string, string>
@@ -697,7 +725,7 @@ namespace Odnoklassniki
 					Hashtable photoObject = (Hashtable)photos[photoId];
 					string token = (string)photoObject["token"];
 
-					callback(token);
+					callback(texture, token);
 				});
 			});
 		}
@@ -717,7 +745,7 @@ namespace Odnoklassniki
 			);
 		}
 
-		private void UploadPhotoForPublish(Texture2D texture, string albumName, Action<string> callback)
+		private void UploadPhotoForPublish(Texture2D texture, string albumName, Action<Texture2D, string> callback)
 		{
 			Api("photos.getAlbums", albumsResponse =>
 			{
@@ -805,12 +833,6 @@ namespace Odnoklassniki
 
 		public bool OpenInviteDialog(OKRequestCallback callback, Action onClosed, string defaultMessage, string[] selected)
 		{
-			if (!IsAuthorized)
-			{
-				Debug.Log("Cannot open Invite dialog: Not authorized");
-				return false;
-			}
-
 			Api(OKMethod.Friends.get, response =>
 			{
 				ArrayList uids = response.Array;
@@ -844,12 +866,6 @@ namespace Odnoklassniki
 
 		public bool OpenSuggestDialog(OKRequestCallback callback, Action onClosed, string defaultMessage, string[] selected)
 		{
-			if (!IsAuthorized)
-			{
-				Debug.Log("Cannot open Suggest dialog: Not authorized");
-				return false;
-			}
-
 			Api(OKMethod.Friends.get, response =>
 			{
 				ArrayList uids = response.Array;
@@ -871,19 +887,8 @@ namespace Odnoklassniki
 			return true;
 		}
 
-		public bool OpenPublishDialog(OKRequestCallback callback, OKMedia media)
+		public bool OpenPublishDialog(OKRequestCallback callback, Action onClosed, List<OKMedia> media)
 		{
-			return OpenPublishDialog(callback, null, media);
-		}
-
-		public bool OpenPublishDialog(OKRequestCallback callback, Action onClosed, OKMedia media)
-		{
-			if (!IsAuthorized)
-			{
-				Debug.Log("Cannot open Post dialog: Not authorized");
-				return false;
-			}
-
 			OKWidgets.OpenPublishDialog(callback, onClosed, media, Publish, UploadPhotoForPublish);
 			return true;
 		}
@@ -895,12 +900,6 @@ namespace Odnoklassniki
 
 		public bool OpenPhotoDialog(OKRequestCallback callback, Action onClosed, Texture2D image, string defaultComment)
 		{
-			if (!IsAuthorized)
-			{
-				Debug.Log("Cannot open Photo dialog: Not authorized");
-				return false;
-			}
-
 			OKWidgets.OpenPhotoDialog(callback, onClosed, image, defaultComment, UploadPhoto);
 			return true;
 		}
@@ -948,13 +947,30 @@ namespace Odnoklassniki
 			OAuthSuccess(debugAccessToken + ";" + debugSessionKey + ";" + AccessTokenDuration);
 		}
 
+		private void RefreshAuth(OKRefreshTokenCallback callback)
+		{
+			if (IsRefreshTokenValid)
+			{
+				RefreshAccessToken(callback);
+			} else
+			{
+				RefreshOAuth(success => {
+					callback(success);
+				});
+			}
+		}
+
 		public void RefreshOAuth(OKAuthCallback action)
 		{
 			authCallback = action;
 			if (Application.isEditor)
 			{
 				Debug.Log("Authorization unavailable in Unity Editor");
-				authCallback = null;
+				if (authCallback != null)
+				{
+					authCallback(false);
+					authCallback = null;
+				}
 				return;
 			}
 
@@ -962,7 +978,7 @@ namespace Odnoklassniki
 			{
 				ClearTokens(false);
 			}
-			OpenWebView(GetAuthUrl(), 1);
+			OpenWebView(GetAuthUrl());
 		}
 
 		private void HideWebView()

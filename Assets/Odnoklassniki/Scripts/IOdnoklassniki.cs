@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Odnoklassniki.HTTP;
 
 namespace Odnoklassniki
 {
@@ -19,7 +20,7 @@ namespace Odnoklassniki
 
 		void RefreshAccessToken(OKRefreshTokenCallback callback);
 
-		void Api(string query, HTTP.Method method, Dictionary<string, string> args, OKRequestCallback callback);
+		void Api(string query, Method method, Dictionary<string, string> args, OKRequestCallback callback);
 
 		void ClearTokens(bool clearCookies = true);
 
@@ -35,9 +36,7 @@ namespace Odnoklassniki
 
 		bool OpenSuggestDialog(OKRequestCallback callback, Action onClosed, string defaultMessage, string[] selected);
 
-		bool OpenPublishDialog(OKRequestCallback callback, OKMedia media);
-
-		bool OpenPublishDialog(OKRequestCallback callback, Action onClosed, OKMedia media);
+		bool OpenPublishDialog(OKRequestCallback callback, Action onClosed, List<OKMedia> media);
 
 		bool OpenPhotoDialog(OKRequestCallback callback, Texture2D image, string defaultComment);
 
@@ -62,5 +61,7 @@ namespace Odnoklassniki
 		#endregion
 
 		void RefreshOAuth(OKAuthCallback action);
+
+		string GetAdvertisingId();
 	}
 }
