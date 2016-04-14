@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Odnoklassniki;
+using Odnoklassniki.Util;
 using UnityEngine.UI;
 
 public class TestFriendPanel : MonoBehaviour {

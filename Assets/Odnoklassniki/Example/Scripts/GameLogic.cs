@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using System;
+using Odnoklassniki;
+using Odnoklassniki.HTTP;
 
 public class GameLogic : MonoBehaviour {
 
@@ -62,7 +63,7 @@ public class GameLogic : MonoBehaviour {
 
 	private void InitFriends()
 	{
-		OK.API(OKMethod.Friends.get, HTTP.Method.GET, response =>
+		OK.API(OKMethod.Friends.get, Method.GET, response =>
 		{
 			ArrayList uidList = response.Array;
 			OK.GetAppUsers(appUsers =>
@@ -220,34 +221,6 @@ public class GameLogic : MonoBehaviour {
 		if (Input.GetKeyDown(KeyCode.N))
 		{
 			LevelUp();
-		}
-
-		if (OK.IsInitialized && OK.AccessTokenExpiresAt < DateTime.Now)
-		{
-			if (tokenRenewRequested) return;
-
-			tokenRenewRequested = true;
-
-			Debug.Log("OK AccessToken expired!");
-			if (OK.IsRefreshTokenValid)
-			{
-				Debug.Log("Try to renew access token (SSO)");
-				OK.RefreshAccessToken(success =>
-				{
-					Debug.Log("SSO access token refreshed: " + success);
-					tokenRenewRequested = false;
-					InitOk();
-				});
-			}
-			else
-			{
-				Debug.Log("Try to renew access token (OAuth)");
-				OK.RefreshOAuth(success => {
-					Debug.Log("OAuth access token refreshed: " + success);
-					tokenRenewRequested = false;
-					InitOk();
-				});
-			}
 		}
 	}
 }

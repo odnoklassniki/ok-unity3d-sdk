@@ -1,5 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+using Odnoklassniki;
+using Odnoklassniki.HTTP;
+using Odnoklassniki.Util;
 
 public class LevelUpPanel : MonoBehaviour {
 
@@ -51,16 +55,24 @@ public class LevelUpPanel : MonoBehaviour {
 		{
 			OK.OpenPhotoDialog(uploadResponse => {
 				Debug.Log("Photo uploaded!");
-				OK.OpenPublishDialog(PublishCallback, OKMedia.Photo(texture, description));
+				OK.OpenPublishDialog(PublishCallback, new List<OKMedia>()
+				{
+					OKMedia.Photo(texture),
+					OKMedia.Text(description)
+				});
 			}, () => {
-				OK.OpenPublishDialog(PublishCallback, OKMedia.Photo(texture, description));
+				OK.OpenPublishDialog(PublishCallback, new List<OKMedia>()
+				{
+					OKMedia.Photo(texture),
+					OKMedia.Text(description)
+				});
 			},
 			texture, description);
 		}
 		Close();
 	}
 
-	private void PublishCallback(HTTP.Response response)
+	private void PublishCallback(Response response)
 	{
 		if (response.Object != null && response.Object.ContainsKey("error_code"))
 		{
