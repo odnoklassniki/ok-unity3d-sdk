@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Json;
+using Odnoklassniki.HTTP;
 
 namespace Odnoklassniki
 {
@@ -30,7 +30,7 @@ namespace Odnoklassniki
 		{
 			Debug.Log("Received IOS App Auth callback: " + data);
 			Debug.Log("Requesting access token by code");
-			new HTTP.Request(TokenByCodeUrl(data), HTTP.Method.POST).Send(request =>
+			new Request(TokenByCodeUrl(data), Method.POST).Send(request =>
 			{
 				string response = request.response.Text;
 				Debug.Log("Got response from tokenByCode: " + response);

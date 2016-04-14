@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Odnoklassniki
 {
@@ -44,6 +45,15 @@ namespace Odnoklassniki
 			return Android.CallStatic<bool>("CheckNativeApp");
 #else
 			return false;
+#endif
+		}
+
+		public override string GetAdvertisingId()
+		{
+#if UNITY_ANDROID
+			return Android.CallStatic<string>("getAdvertisingId");
+#else
+			throw new NotImplementedException("AdvertisingId only available for Android");
 #endif
 		}
 
