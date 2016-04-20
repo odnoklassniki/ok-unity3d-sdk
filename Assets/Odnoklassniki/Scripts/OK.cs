@@ -83,11 +83,8 @@ namespace Odnoklassniki
 #elif UNITY_IOS
 			odnoklassniki = new GameObject("Odnoklassniki").AddComponent<IOSOdnoklassniki>();
 			odnoklassniki.Init(callback);
-#elif UNITY_WEBGL
-			odnoklassniki = new GameObject("Odnoklassniki").AddComponent<WebGLOdnoklassniki>();
-			odnoklassniki.Init(callback);
 #else
-			Debug.LogError("Odnoklassniki Unity SDK Unavailable");
+			Debug.LogError("Odnoklassniki Unity SDK Unavailable: Set platform to either Android or iOS");
 			odnoklassniki = null;
 			callback(false);
 #endif
