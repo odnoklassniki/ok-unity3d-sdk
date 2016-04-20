@@ -7,7 +7,7 @@ namespace Odnoklassniki
 	{
 		private const string AndroidAppUrl = "okauth://ok{0}";
 
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
 		private AndroidJavaClass android;
 
 		private AndroidJavaClass Android
@@ -26,7 +26,7 @@ namespace Odnoklassniki
 		protected override bool SsoAuth()
 		{
 			if (!base.SsoAuth()) return false;
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
 			Android.CallStatic("SSOAuth", AppId, appSecretKey, scope);
 			return true;
 #else
@@ -41,7 +41,7 @@ namespace Odnoklassniki
 
 		public override bool IsOdnoklassnikiNativeAppInstalled()
 		{
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
 			return Android.CallStatic<bool>("CheckNativeApp");
 #else
 			return false;
@@ -50,7 +50,7 @@ namespace Odnoklassniki
 
 		public override string GetAdvertisingId()
 		{
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
 			return Android.CallStatic<string>("getAdvertisingId");
 #else
 			throw new NotImplementedException("AdvertisingId only available for Android");
