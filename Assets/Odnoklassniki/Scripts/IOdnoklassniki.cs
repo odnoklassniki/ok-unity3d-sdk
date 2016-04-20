@@ -20,7 +20,7 @@ namespace Odnoklassniki
 
 		void RefreshAccessToken(OKRefreshTokenCallback callback);
 
-		void Api(string query, Method method, Dictionary<string, string> args, OKRequestCallback callback);
+		void Api(string query, Method method, Dictionary<string, string> args, OKRequestCallback callback, bool useSession = true);
 
 		void ClearTokens(bool clearCookies = true);
 

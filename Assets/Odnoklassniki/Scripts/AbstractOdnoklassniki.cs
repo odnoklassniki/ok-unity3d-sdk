@@ -38,6 +38,7 @@ namespace Odnoklassniki
 		private static string refreshTokenURL = "{0}oauth/token.do?grant_type=refresh_token&refresh_token={1}&client_id={2}&client_secret={3}";
 		private static string tokenByCodeURL = "{0}oauth/token.do?grant_type=authorization_code&code={1}&permissions={2}&redirect_uri={3}&client_id={4}&client_secret={5}";
 		private static string apiURL = "{0}fb.do?access_token={1}&sig={2}&{3}";
+		private static string apiNoSessionURL = "{0}fb.do?{1}";
 
 		protected string scope;
 		protected string responseType = "token";
@@ -380,6 +381,11 @@ namespace Odnoklassniki
 			return string.Format(apiURL, apiServer, AccessToken, CalculateSig(args), URLParams(args));
 		}
 
+		protected string GetApiNoSessionUrl(Dictionary<string, string> args)
+		{
+			return string.Format(apiNoSessionURL, apiServer, URLParams(args));
+		}
+
 		private bool AccessTokenValid()
 		{
 			return AccessToken != null && AccessTokenExpiresAt > DateTime.Now;
@@ -462,18 +468,21 @@ namespace Odnoklassniki
 
 		#endregion
 
-		public void Api(string query, HTTP.Method method, Dictionary<string, string> args, OKRequestCallback callback)
+		public void Api(string query, HTTP.Method method, Dictionary<string, string> args, OKRequestCallback callback, bool useSession = true)
 		{
-			Api(query, method, httpFormat, args, callback);
+			Api(query, method, httpFormat, args, callback, useSession);
 		}
 
-		private void Api(string query, HTTP.Method method, HTTP.Format format, Dictionary<string, string> args, OKRequestCallback callback)
+		private void Api(string query, HTTP.Method method, HTTP.Format format, Dictionary<string, string> args, OKRequestCallback callback, bool useSession = true)
 		{
 			args.Add("application_key", appKey);
 			args.Add("method", query);
 			args.Add("format", format.ToString());
 
-			new HTTP.Request(GetApiUrl(args), method, format).Send(request =>
+			string url = useSession ? GetApiUrl(args) : GetApiNoSessionUrl(args);
+
+			Debug.Log("URL: " + url);
+			new HTTP.Request(url, method, format).Send(request =>
 			{
 				//check for error
 				Hashtable obj = request.response.Object;
@@ -528,9 +537,9 @@ namespace Odnoklassniki
 			Api(okMethod, new Dictionary<string, string>(), callback);
 		}
 
-		private void Api(string okMethod, Dictionary<string, string> args, OKRequestCallback callback)
+		private void Api(string okMethod, Dictionary<string, string> args, OKRequestCallback callback, bool useSession = true)
 		{
-			Api(okMethod, HTTP.Method.GET, args, callback);
+			Api(okMethod, HTTP.Method.GET, args, callback, useSession);
 		}
 
 		private string URLParams(Dictionary<string, string> args, string delim = "&", bool encode = true)
