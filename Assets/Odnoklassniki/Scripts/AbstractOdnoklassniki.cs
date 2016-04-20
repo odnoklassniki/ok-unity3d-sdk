@@ -59,7 +59,20 @@ namespace Odnoklassniki
 		{
 			get
 			{
-				return (OKAuthType) Enum.Parse(typeof(OKAuthType), PlayerPrefs.GetString(PrefsAuthType));
+				string value = PlayerPrefs.GetString(PrefsAuthType);
+				if (string.IsNullOrEmpty(value))
+				{
+					return OKAuthType.None;
+				}
+
+				try
+				{
+					return (OKAuthType) Enum.Parse(typeof(OKAuthType), value);
+				} catch (Exception e)
+				{
+					Debug.LogError("Error parsing Auth Type \"" + value + "\" : " + e.Message);
+					return OKAuthType.None;
+				}
 			}
 			set { PlayerPrefs.SetString(PrefsAuthType, value.ToString()); }
 		}
