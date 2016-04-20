@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Odnoklassniki.HTTP;
+using UnityEngine.iOS;
 
 namespace Odnoklassniki
 {
@@ -24,6 +25,11 @@ namespace Odnoklassniki
 		protected override string GetAppUrl()
 		{
 			return string.Format(IOSAppUrl, AppId);
+		}
+
+		public override string GetAdvertisingId()
+		{
+			return Device.advertisingIdentifier;
 		}
 
 		public void SSOAuthSuccessIOS(string data)
