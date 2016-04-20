@@ -361,6 +361,8 @@ namespace Odnoklassniki
 
 		protected abstract string GetAppUrl();
 
+		public abstract string GetAdvertisingId();
+
 		protected string GetAuthUrl()
 		{
 			return string.Format(authURL, AppId, scope, responseType, WWW.EscapeURL(GetAppUrl()), layout);
@@ -684,11 +686,6 @@ namespace Odnoklassniki
 				},
 				callback
 			);
-		}
-
-		public virtual string GetAdvertisingId()
-		{
-			throw new NotImplementedException("AdvertisingId only available for Android");
 		}
 
 		private void Publish(Hashtable attachment, OKRequestCallback callback)
