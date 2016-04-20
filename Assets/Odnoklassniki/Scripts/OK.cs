@@ -102,19 +102,19 @@ namespace Odnoklassniki
 			OdnoklassnikiImpl.ClearTokens();
 		}
 
-		public static void API(string query, Method method, Dictionary<string, string> args, OKRequestCallback callback)
+		public static void API(string query, Method method, Dictionary<string, string> args, OKRequestCallback callback, bool useSession = true)
 		{
-			OdnoklassnikiImpl.Api(query, method, args, callback);
+			OdnoklassnikiImpl.Api(query, method, args, callback, useSession);
 		}
 
-		public static void API(string query, Method method, OKRequestCallback callback)
+		public static void API(string query, Method method, OKRequestCallback callback, bool useSession = true)
 		{
-			API(query, method, new Dictionary<string, string>(), callback);
+			API(query, method, new Dictionary<string, string>(), callback, useSession);
 		}
 
-		public static void API(string query, Dictionary<string, string> args, OKRequestCallback callback)
+		public static void API(string query, Dictionary<string, string> args, OKRequestCallback callback, bool useSession = true)
 		{
-			API(query, Method.GET, args, callback);
+			API(query, Method.GET, args, callback, useSession);
 		}
 
 		public static void API(string query, OKRequestCallback callback)
