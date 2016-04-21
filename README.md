@@ -16,7 +16,7 @@ An application registered within OK platform should have:
 Setup
 -------
 
-1. Based on which Unity major version you are using (4 or 5), you should retain the corresponding DLL file and delete the other (`odnoklassniki_unity4.dll` / `odnoklassiki_unity5.dll` in `Assets/Plugins`) - make sure that GUID of the given DLL stays the same, since if changed, it may break included prefabs.
+1. Based on which Unity major version you are using (4 or 5), you should retain the corresponding DLL file and metafile and delete the other (`odnoklassniki_unity4.dll`, `odnoklassniki_unity4.dll.meta` / `odnoklassiki_unity5.dll`, `odnoklassniki_unity5.dll.meta` in `Assets/Plugins`) - make sure that GUID of the given DLL stays the same, since if changed, it may break included prefabs. Note that this should be done BEFORE opening the project in Unity.
 2. Fill in application parameters in `OdnoklassnikiSettings.asset`
 3. Add the following entries to your `android.manifest` 
 
@@ -131,7 +131,11 @@ OK.OpenPhotoDialog(response => {
 ```
 OK.OpenPublishDialog(response => {
     //Will be called after Publish API call
-}, OKMedia.Photo(texture, "Description"));
+	}, new List<OKMedia>()
+	{
+		OKMedia.Photo(texture),
+		OKMedia.Text("Description")
+	});
 ```
 
 #### Handling errors
@@ -153,4 +157,5 @@ F.A.Q.
 Is there a convenient way to see if Odnoklassniki widget is shown?
 > OKWidgets.HasActiveWidget() method does that.
 
-
+How can I select specific canvas for widgets if I am using multiple canvases?
+> You can explicitly specify canvas to use with OKWidgets.canvas
