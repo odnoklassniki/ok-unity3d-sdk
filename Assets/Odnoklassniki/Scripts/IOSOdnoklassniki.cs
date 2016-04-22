@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using Odnoklassniki.HTTP;
 using UnityEngine.iOS;
@@ -29,7 +30,11 @@ namespace Odnoklassniki
 
 		public override string GetAdvertisingId()
 		{
+#if UNITY_IOS
 			return Device.advertisingIdentifier;
+#else
+			throw new NotImplementedException("iOSOdnoklasniki.GetAdvertisingId() only works on iOS platform");
+#endif
 		}
 
 		public void SSOAuthSuccessIOS(string data)
