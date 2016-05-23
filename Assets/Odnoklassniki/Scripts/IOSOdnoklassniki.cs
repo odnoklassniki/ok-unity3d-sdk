@@ -28,6 +28,11 @@ namespace Odnoklassniki
 			return string.Format(IOSAppUrl, AppId);
 		}
 
+		protected override string GetPlatform()
+		{
+			return OKPlatform.iOS;
+		}
+
 		public override string GetAdvertisingId()
 		{
 #if UNITY_IOS

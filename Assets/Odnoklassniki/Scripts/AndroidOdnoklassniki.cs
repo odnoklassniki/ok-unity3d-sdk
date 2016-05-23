@@ -34,6 +34,11 @@ namespace Odnoklassniki
 #endif
 		}
 
+		protected override string GetPlatform()
+		{
+			return OKPlatform.Android;
+		}
+
 		protected override string GetAppUrl()
 		{
 			return string.Format(AndroidAppUrl, AppId);
