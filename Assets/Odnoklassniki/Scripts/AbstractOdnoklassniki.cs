@@ -54,6 +54,11 @@ namespace Odnoklassniki
 		private const string PrefsRefreshTokenExpiration = "unityok_refresh_token_expiration";
 		private const string PrefsAuthType = "unityok_auth_type";
 
+		private const string ParamApplicationKey = "application_key";
+		private const string ParamMethod = "method";
+		private const string ParamFormat= "format";
+		private const string ParamPlatform = "platform";
+
 		#endregion
 
 		protected OKAuthType AuthType
@@ -470,6 +475,8 @@ namespace Odnoklassniki
 
 		#endregion
 
+		protected abstract string GetPlatform();
+
 		public void Api(string query, HTTP.Method method, Dictionary<string, string> args, OKRequestCallback callback, bool useSession = true)
 		{
 			Api(query, method, httpFormat, args, callback, useSession);
@@ -477,13 +484,13 @@ namespace Odnoklassniki
 
 		private void Api(string query, HTTP.Method method, HTTP.Format format, Dictionary<string, string> args, OKRequestCallback callback, bool useSession = true)
 		{
-			args.Add("application_key", appKey);
-			args.Add("method", query);
-			args.Add("format", format.ToString());
+			args.Add(ParamApplicationKey, appKey);
+			args.Add(ParamMethod, query);
+			args.Add(ParamFormat, format.ToString());
+			args.Add(ParamPlatform, GetPlatform().ToUpper());
 
 			string url = useSession ? GetApiUrl(args) : GetApiNoSessionUrl(args);
 
-			Debug.Log("URL: " + url);
 			new HTTP.Request(url, method, format).Send(request =>
 			{
 				//check for error
