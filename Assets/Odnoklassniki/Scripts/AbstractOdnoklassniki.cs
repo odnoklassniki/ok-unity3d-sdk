@@ -58,6 +58,7 @@ namespace Odnoklassniki
 		private const string ParamMethod = "method";
 		private const string ParamFormat= "format";
 		private const string ParamPlatform = "platform";
+		private const string ParamSdkToken = "sdkToken";
 
 		#endregion
 
@@ -488,6 +489,11 @@ namespace Odnoklassniki
 			args.Add(ParamMethod, query);
 			args.Add(ParamFormat, format.ToString());
 			args.Add(ParamPlatform, GetPlatform().ToUpper());
+			
+			if (OKMethod.RequiresSdkToken(query))
+			{
+				args.Add(ParamSdkToken, unitySessionKey);
+			}
 
 			string url = useSession ? GetApiUrl(args) : GetApiNoSessionUrl(args);
 
@@ -672,8 +678,7 @@ namespace Odnoklassniki
 				new Dictionary<string, string> {
 					{"uids", string.Join(",", uids)},
 					{"devices", string.Join(",", devices)},
-					{"text", text},
-					{"sdkToken", unitySessionKey}
+					{"text", text}
 				},
 				delegate(HTTP.Response response)
 				{
@@ -688,8 +693,7 @@ namespace Odnoklassniki
 				new Dictionary<string, string>
 				{
 					{"uids", string.Join(",", uids)},
-					{"text", text},
-					{"sdkToken", unitySessionKey}
+					{"text", text}
 				},
 				callback
 			);
@@ -700,7 +704,6 @@ namespace Odnoklassniki
 			Api(OKMethod.SDK.post,
 				new Dictionary<string, string>
 				{
-					{"sdkToken", unitySessionKey},
 					{"attachment", JSON.Encode(attachment)}
 				},
 				callback
