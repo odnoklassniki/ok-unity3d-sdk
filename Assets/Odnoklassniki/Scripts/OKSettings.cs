@@ -18,7 +18,7 @@ namespace Odnoklassniki
 
 		public const string SDK_VERSION = "2";
 		public const string CLIENT_TYPE = "SDK_UNITY3D";
-		public const string CLIENT_VERSION = "1.0.12";
+		public const string CLIENT_VERSION = "1.0.13";
 
 		const string OdnoklassnikiSettingsAssetName = "OdnoklassnikiSettings";
 		const string OdnoklassnikiSettingsPath = "Odnoklassniki/Resources";
@@ -72,16 +72,15 @@ namespace Odnoklassniki
 		[MenuItem("Odnoklassniki/SDK Documentation")]
 		public static void OpenDocumentation()
 		{
-			string url = "https://github.com/odnoklassniki/ok-unity3d-sdk";
+			string url = "https://github.com/odnoklassniki/ok-unity3d-sdk/blob/master/README.md";
 			Application.OpenURL(url);
 		}
 
 		[MenuItem("Odnoklassniki/Report a SDK Bug")]
 		public static void ReportABug()
 		{
-			string subject = "Unity 3D sdk bug";
-			string body = "Client version: " + CLIENT_VERSION;
-			string url = string.Format("mailto:api-support@ok.ru?subject={0}&body={1}", subject, body);
+			string version = "\n\nSDK Version: " + CLIENT_VERSION;
+			string url = "https://github.com/odnoklassniki/ok-unity3d-sdk/issues/new?body=" + WWW.EscapeURL(version);
 			Application.OpenURL(url);
 		}
 #endif
