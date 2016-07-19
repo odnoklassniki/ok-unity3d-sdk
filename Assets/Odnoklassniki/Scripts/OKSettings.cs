@@ -18,7 +18,7 @@ namespace Odnoklassniki
 
 		public const string SDK_VERSION = "2";
 		public const string CLIENT_TYPE = "SDK_UNITY3D";
-		public const string CLIENT_VERSION = "1.0.13";
+		public const string CLIENT_VERSION = "1.0.14";
 
 		const string OdnoklassnikiSettingsAssetName = "OdnoklassnikiSettings";
 		const string OdnoklassnikiSettingsPath = "Odnoklassniki/Resources";
