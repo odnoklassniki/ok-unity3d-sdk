@@ -99,7 +99,7 @@ public class GameLogic : MonoBehaviour {
 
 	private void AddExp()
 	{
-		exp += level;
+		exp++;
 		if (exp >= ExpToNextLevel())
 		{
 			LevelUp();
@@ -109,7 +109,7 @@ public class GameLogic : MonoBehaviour {
 	}
 	private void LevelUp()
 	{
-		exp = exp % ExpToNextLevel();
+		exp = 0;
 		level++;
 		UpdateLevel();
 		cookie.LevelUp();
@@ -152,7 +152,7 @@ public class GameLogic : MonoBehaviour {
 
 	private int ExpToNextLevel()
 	{
-		return level * level;
+		return 5;
 	}
 
 	IEnumerator StartLvlUp()
