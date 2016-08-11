@@ -62,6 +62,8 @@ namespace Odnoklassniki
 
 		#endregion
 
+		protected OKAuthType authRequested = OKAuthType.None;
+
 		protected OKAuthType AuthType
 		{
 			get
@@ -263,6 +265,7 @@ namespace Odnoklassniki
 			{
 				ClearTokens();
 			}
+			authRequested = OKAuthType.OAuth;
 			OpenWebView(GetAuthUrl());
 		}
 
@@ -284,6 +287,7 @@ namespace Odnoklassniki
 			//temp fix for permissions_granted change
 			SessionSecretKey = args[1].Split('&')[0];
 			AccessTokenExpiresAt = ParseExpiration(args[2]);
+			authRequested = OKAuthType.None;
 			AuthType = OKAuthType.OAuth;
 			Debug.Log("Authorized via OAuth!");
 			if (authCallback != null)
@@ -294,8 +298,27 @@ namespace Odnoklassniki
 			HideWebView();
 		}
 
+		public void AuthFailed(string error)
+		{
+			switch (authRequested)
+			{
+				case OKAuthType.None:
+					Debug.LogError("Auth failed while no auth was requested");
+					break;
+				case OKAuthType.SSO:
+					SSOAuthFailed(error);
+					break;
+				case OKAuthType.OAuth:
+					OAuthFailed(error);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
 		public void OAuthFailed(string details)
 		{
+			authRequested = OKAuthType.None;
 			Debug.LogError("Received OAuth failed callback: " + details);
 			if (authCallback != null)
 			{
@@ -307,6 +330,7 @@ namespace Odnoklassniki
 
 		public void SSOAuthFailed(string details)
 		{
+			authRequested = OKAuthType.None;
 			Debug.Log("Received SSO Auth failed callback: " + details);
 			bool cancelled;
 			if (bool.TryParse(details.Replace("cancelled:", ""), out cancelled) && cancelled)
@@ -1007,6 +1031,7 @@ namespace Odnoklassniki
 			{
 				ClearTokens(false);
 			}
+			authRequested = OKAuthType.OAuth;
 			OpenWebView(GetAuthUrl());
 		}
 

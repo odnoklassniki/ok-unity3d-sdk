@@ -14,6 +14,7 @@ namespace Odnoklassniki
 		{
 			if (!base.SsoAuth()) return false;
 
+			authRequested = OKAuthType.SSO;
 			OKAppAuthIOS.AuthorizeInApp(AppId, scope);
 			return true;
 		}
@@ -61,6 +62,7 @@ namespace Odnoklassniki
 				AccessTokenExpiresAt = json.ContainsKey("expires_in") ? ParseExpiration(json["expires_in"].ToString()) : DefaultAccessTokenExpires();
 				RefreshToken = json["refresh_token"].ToString();
 				RefreshTokenExpiresAt = DefaultRefreshTokenExpires();
+				authRequested = OKAuthType.None;
 				AuthType = OKAuthType.SSO;
 				Debug.Log("Authorized via SSO");
 				if (authCallback != null)
