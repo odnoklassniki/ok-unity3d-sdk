@@ -496,7 +496,6 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 - (void)webViewDone:(WebView *)webView {
 	[webView.spinner hide];
 	NSString *webViewName = [self webViewName:webView];
-	UnitySendMessage([webViewName UTF8String], "WebViewDone", "");
 }
 
 -(NSString *) webViewNameGetCurrentUrl:(NSString *)name {
@@ -517,10 +516,7 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
 
 	if (canResponse) {
 		NSString *rawMessage = [NSString stringWithFormat:@"%@",request.URL];
-		UnitySendMessage([webViewName UTF8String], "ReceivedMessage", [rawMessage UTF8String]);
 		return NO;
-	} else {
-		UnitySendMessage([webViewName UTF8String], "LoadBegin", [request.URL.absoluteString UTF8String]);
 	}
 	return YES;
 }

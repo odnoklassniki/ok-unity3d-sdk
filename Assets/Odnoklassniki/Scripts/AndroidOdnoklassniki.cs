@@ -27,6 +27,7 @@ namespace Odnoklassniki
 		{
 			if (!base.SsoAuth()) return false;
 #if UNITY_ANDROID && !UNITY_EDITOR
+			authRequested = OKAuthType.SSO;
 			Android.CallStatic("SSOAuth", AppId, appSecretKey, scope);
 			return true;
 #else
@@ -76,6 +77,7 @@ namespace Odnoklassniki
 			RefreshToken = args[1];
 			AccessTokenExpiresAt = DefaultAccessTokenExpires();
 			RefreshTokenExpiresAt = DefaultRefreshTokenExpires();
+			authRequested = OKAuthType.None;
 			AuthType = OKAuthType.SSO;
 			Debug.Log("Authorized via SSO");
 			if (authCallback != null)

@@ -43,8 +43,11 @@
 	NSString *key = [args objectForKey:@"session_secret_key"];
 	NSString *expiresIn = [args objectForKey:@"expires_in"];
 	NSString *code = [args objectForKey:@"code"];
- 
-	if (code) {
+	NSString *error = [args objectForKey:@"error"];
+	
+	if (error) {
+		UnitySendMessage("Odnoklassniki", "AuthFailed", [error UTF8String]);
+	} else if (code) {
 		NSLog(@"Extracted code=%@", code);
 		UnitySendMessage("Odnoklassniki", "SSOAuthSuccessIOS", [code UTF8String]);
 	} else {
@@ -52,11 +55,11 @@
 		NSString* message = [NSString stringWithFormat:@"%@;%@;%@", token, key, expiresIn];
 		UnitySendMessage("Odnoklassniki", "OAuthSuccess", [message UTF8String]);
 	}
-   
+
 	return [super application:application
 		openURL:url
 		sourceApplication:sourceApplication
-	annotation:annotation];
+		annotation:annotation];
 }
  
 @end
