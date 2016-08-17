@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using Odnoklassniki.HTTP;
 using Odnoklassniki.Util;
@@ -513,7 +514,7 @@ namespace Odnoklassniki
 			args.Add(ParamMethod, query);
 			args.Add(ParamFormat, format.ToString());
 			args.Add(ParamPlatform, GetPlatform().ToUpper());
-			
+
 			if (OKMethod.RequiresSdkToken(query))
 			{
 				args.Add(ParamSdkToken, unitySessionKey);
@@ -650,23 +651,50 @@ namespace Odnoklassniki
 
 		public void GetInfo(string[] uids, string[] fields, bool emptyPictures, OKGetInfoCallback callback)
 		{
-			Api(OKMethod.Users.getInfo,
-				new Dictionary<string, string> {
-					{"uids", string.Join(",", uids)},
-					{"fields", string.Join(",", fields)},
-					{"emptyPictures", emptyPictures.ToString()}
-				},
-				delegate(HTTP.Response response)
-				{
-					ArrayList users = response.Array;
-					OKUserInfo[] userInfos = new OKUserInfo[users.Count];
-					for (int i = 0; i < users.Count; i++)
+			// Number of requests needed to obtain data for all required users, API limited by 100/request.
+			int requestCounter = (uids.Length / 100) + ((uids.Length % 100 > 0) ? 1 : 0);
+			HTTP.Response[] responseList = new Response[requestCounter];
+			int responseCounter = 0;
+			int responseUserCount = 0;
+			for (int j = 0; j < requestCounter; j++)
+			{
+				int requestIndex = j;
+				// Find the remaining number of uids to send, maximum 100, and put these uids in list.
+				int maxCount = Math.Min(100, uids.Length - j * 100);
+				string[] requestUids = uids.Skip(j * 100).Take(maxCount).ToArray();
+				Api(OKMethod.Users.getInfo,
+					new Dictionary<string, string> {
+						{"uids", string.Join(",", requestUids)},
+						{"fields", string.Join(",", fields)},
+						{"emptyPictures", emptyPictures.ToString()}
+					},
+					delegate (HTTP.Response response)
 					{
-						userInfos[i] = new OKUserInfo((Hashtable)users[i]);
+						// Store response
+						responseList[requestIndex] = response;
+						responseCounter++;
+						// Count user response Array objects.
+						responseUserCount += response.Array.Count;
+						// Process data on last response received
+						if (responseCounter == requestCounter)
+						{
+							OKUserInfo[] userInfos = new OKUserInfo[responseUserCount];
+							int responseIndex = 0;
+							// Iterate all response objects and save all user response Array objects.
+							for (int k = 0; k < requestCounter; k++)
+							{
+								ArrayList users = responseList[k].Array;
+								for (int i = 0; i < users.Count; i++)
+								{
+									userInfos[responseIndex] = new OKUserInfo((Hashtable)users[i]);
+									responseIndex++;
+								}
+							}
+							callback(userInfos);
+						}
 					}
-					callback(userInfos);
-				}
-			);
+				);
+			}
 		}
 
 		public void GetAppUsers(OKGetAppUsersCallback callback)
