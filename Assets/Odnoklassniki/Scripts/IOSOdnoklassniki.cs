@@ -2,8 +2,9 @@
 using UnityEngine;
 using System.Collections;
 using Odnoklassniki.HTTP;
+#if UNITY_IOS
 using UnityEngine.iOS;
-
+#endif
 namespace Odnoklassniki
 {
 	public class IOSOdnoklassniki : AbstractOdnoklassniki
