@@ -54,6 +54,7 @@ namespace Odnoklassniki
 		private const string PrefsAccessTokenExpiration = "unityok_access_token_expiration";
 		private const string PrefsRefreshTokenExpiration = "unityok_refresh_token_expiration";
 		private const string PrefsAuthType = "unityok_auth_type";
+		private const string PrefsReportPayments = "unityok_report_payments";
 
 		private const string ParamApplicationKey = "application_key";
 		private const string ParamMethod = "method";
@@ -64,6 +65,10 @@ namespace Odnoklassniki
 		#endregion
 
 		protected OKAuthType authRequested = OKAuthType.None;
+
+		LinkedList<OKTransaction> paymentTransactionQueue = new LinkedList<OKTransaction>();
+
+		bool paymentTransactionInProgress = false;
 
 		protected OKAuthType AuthType
 		{
@@ -162,6 +167,7 @@ namespace Odnoklassniki
 			scope = OKSettings.Scope;
 			debugAccessToken = OKSettings.DebugAccessToken;
 			debugSessionKey = OKSettings.DebugSessionKey;
+			ReportPaymentInit();
 			SdkInit(OKSettings.SDK_VERSION, SystemInfo.deviceUniqueIdentifier, OKSettings.CLIENT_TYPE, OKSettings.CLIENT_VERSION, callback);
 		}
 
@@ -195,10 +201,10 @@ namespace Odnoklassniki
 					}
 
 					Hashtable response = request.response.Object;
-					unitySessionKey = (string)response["session_key"];
-					unitySecretSessionKey = (string)response["session_secret_key"];
-					apiServer = (string)response["api_server"];
-					activatedProfile = (bool)response["activated_profile"];
+					unitySessionKey = (string) response["session_key"];
+					unitySecretSessionKey = (string) response["session_secret_key"];
+					apiServer = (string) response["api_server"];
+					activatedProfile = (bool) response["activated_profile"];
 
 					IsInitialized = true;
 					if (callback != null)
@@ -296,6 +302,8 @@ namespace Odnoklassniki
 				authCallback(true);
 				authCallback = null;
 			}
+			// Send any unsent payment reports.
+			ReportPaymentSendInternal();
 			HideWebView();
 		}
 
@@ -521,7 +529,7 @@ namespace Odnoklassniki
 			}
 
 			string url = useSession ? GetApiUrl(args) : GetApiNoSessionUrl(args);
-
+			
 			new HTTP.Request(url, method, format).Send(request =>
 			{
 				//check for error
@@ -670,30 +678,39 @@ namespace Odnoklassniki
 					},
 					delegate (HTTP.Response response)
 					{
-						// Store response
-						responseList[requestIndex] = response;
-						responseCounter++;
-						// Count user response Array objects.
-						responseUserCount += response.Array.Count;
-						// Process data on last response received
-						if (responseCounter == requestCounter)
+						string error = response.Error;
+						if (!string.IsNullOrEmpty(error))
 						{
-							OKUserInfo[] userInfos = new OKUserInfo[responseUserCount];
-							int responseIndex = 0;
-							// Iterate all response objects and save all user response Array objects.
-							for (int k = 0; k < requestCounter; k++)
+							// In case of error, return a 0-element list
+							callback(new OKUserInfo[0]);
+						}
+						else
+						{
+							// Store response
+							responseList[requestIndex] = response;
+							responseCounter++;
+							// Count user response Array objects.
+							responseUserCount += response.Array.Count;
+							// Process data on last response received
+							if (responseCounter == requestCounter)
 							{
-								ArrayList users = responseList[k].Array;
-								for (int i = 0; i < users.Count; i++)
+								OKUserInfo[] userInfos = new OKUserInfo[responseUserCount];
+								int responseIndex = 0;
+								// Iterate all response objects and save all user response Array objects.
+								for (int k = 0; k < requestCounter; k++)
 								{
-									userInfos[responseIndex] = new OKUserInfo((Hashtable)users[i]);
-									responseIndex++;
+									ArrayList users = responseList[k].Array;
+									for (int i = 0; i < users.Count; i++)
+									{
+										userInfos[responseIndex] = new OKUserInfo((Hashtable) users[i]);
+										responseIndex++;
+									}
 								}
+								callback(userInfos);
 							}
-							callback(userInfos);
 						}
 					}
-				);
+					);
 			}
 		}
 
@@ -720,6 +737,14 @@ namespace Odnoklassniki
 
 				callback(ToStringArray(uids));
 			});
+		}
+
+		public void ReportPayment(string trxId, string amount, string currency)
+		{
+			OKTransaction transaction = new OKTransaction(trxId, amount, currency);
+			paymentTransactionQueue.AddFirst(transaction);
+			UpdateUnprocessedPaymentList();
+			ReportPaymentSendInternal();
 		}
 
 		public abstract bool IsOdnoklassnikiNativeAppInstalled ();
@@ -1010,7 +1035,6 @@ namespace Odnoklassniki
 		#region Debug tools
 
 
-
 		public void AuthWithDebugToken()
 		{
 			if (string.IsNullOrEmpty(debugAccessToken))
@@ -1084,6 +1108,69 @@ namespace Odnoklassniki
 			}
 			webView.Load(url);
 			webView.Show(showDelay);
+		}
+
+		#endregion
+
+		#region Payment transaction report methods
+
+		private void ReportPaymentInit()
+		{
+			string unsentPayments = PlayerPrefs.GetString(PrefsReportPayments);
+			if (!string.IsNullOrEmpty(unsentPayments))
+			{
+				ArrayList decodedList = (ArrayList) JSON.Decode(unsentPayments);
+				foreach (string tableItem in decodedList)
+				{
+					paymentTransactionQueue.AddLast(new OKTransaction((Hashtable) JSON.Decode(tableItem)));
+				}
+			}
+		}
+
+		protected void ReportPaymentSendInternal()
+		{
+			// Check if we have any unsent transactions.
+			if (paymentTransactionQueue.Count == 0) return;
+			if (paymentTransactionInProgress) return;
+
+			paymentTransactionInProgress = true;
+			OKTransaction transaction = paymentTransactionQueue.First.Value;
+			Api(OKMethod.SDK.reportPayment,
+				transaction.ToDictionary(),
+				delegate(HTTP.Response response)
+				{
+					try
+					{
+						Hashtable json = (Hashtable) JSON.Decode(response.Text);
+						bool result = json.Contains("result") && (bool) json["result"];
+						if (result)
+						{
+							// Remove sent transaction from list, if successful
+							paymentTransactionQueue.Remove(transaction);
+							UpdateUnprocessedPaymentList();
+							paymentTransactionInProgress = false;
+							// Try sending next transaction, if we have any remaining in queue.
+							ReportPaymentSendInternal();
+						}
+					}
+					catch (Exception e)
+					{
+						paymentTransactionInProgress = false;
+						Debug.LogError("Error response on sdk.reportPayment, transaction id: " + transaction.GetId() + " error: " + e.Message);
+					}
+				});
+		}
+
+		private void UpdateUnprocessedPaymentList()
+		{
+			ArrayList transactionJsonList = new ArrayList();
+			foreach (OKTransaction transaction in paymentTransactionQueue)
+			{
+				transactionJsonList.Add(transaction.Encode());
+			}
+			string transactionJson = JSON.Encode(transactionJsonList);
+			PlayerPrefs.SetString(PrefsReportPayments, transactionJson);
+			PlayerPrefs.Save();
 		}
 
 		#endregion

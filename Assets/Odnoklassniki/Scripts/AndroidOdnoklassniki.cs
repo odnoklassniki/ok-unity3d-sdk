@@ -80,6 +80,8 @@ namespace Odnoklassniki
 			authRequested = OKAuthType.None;
 			AuthType = OKAuthType.SSO;
 			Debug.Log("Authorized via SSO");
+			// Send any unsent payment reports.
+			ReportPaymentSendInternal();
 			if (authCallback != null)
 			{
 				authCallback(true);

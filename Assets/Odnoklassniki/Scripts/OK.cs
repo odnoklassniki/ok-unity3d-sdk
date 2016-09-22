@@ -141,6 +141,10 @@ namespace Odnoklassniki
 			OdnoklassnikiImpl.GetCurrentUser(fields, callback);
 		}
 
+		/**
+		 * This is an API request wrapper that automatically splits requests into 100 uid chunks, based on API limitations at the time of implementation.
+		 * This API only works when there is a session, can return an empty OKUserInfo[] list in case of an error.
+		 */
 		public static void GetInfo(OKGetInfoCallback callback, string[] uids, string[] fields, bool emptyPictures = false)
 		{
 			OdnoklassnikiImpl.GetInfo(uids, fields, emptyPictures, callback);
@@ -204,6 +208,14 @@ namespace Odnoklassniki
 		public static void GetFriendsByDevices(OKRequestCallback callback, string[] devices)
 		{
 			OdnoklassnikiImpl.GetFriendsByDevices(callback, devices);
+		}
+
+		/**
+		 * Wrapper that retries payment reports later in case of connectivity loss.
+		 */
+		public static void ReportPayment(string trxId, string amount, string currency)
+		{
+			OdnoklassnikiImpl.ReportPayment(trxId, amount, currency);
 		}
 
 		#endregion
