@@ -1132,6 +1132,7 @@ namespace Odnoklassniki
 			// Check if we have any unsent transactions.
 			if (paymentTransactionQueue.Count == 0) return;
 			if (paymentTransactionInProgress) return;
+			if (!IsInitialized) return;
 
 			paymentTransactionInProgress = true;
 			OKTransaction transaction = paymentTransactionQueue.First.Value;
@@ -1143,14 +1144,19 @@ namespace Odnoklassniki
 					{
 						Hashtable json = (Hashtable) JSON.Decode(response.Text);
 						bool result = json.Contains("result") && (bool) json["result"];
-						if (result)
+						transaction.RetryCountUp();
+						if (result || transaction.TooManyRetries())
 						{
-							// Remove sent transaction from list, if successful
+							// Remove sent transaction from list, if successful or too many retries.
 							paymentTransactionQueue.Remove(transaction);
 							UpdateUnprocessedPaymentList();
 							paymentTransactionInProgress = false;
 							// Try sending next transaction, if we have any remaining in queue.
 							ReportPaymentSendInternal();
+						} else {
+							// Update retry count.
+							UpdateUnprocessedPaymentList();
+							paymentTransactionInProgress = false;
 						}
 					}
 					catch (Exception e)
