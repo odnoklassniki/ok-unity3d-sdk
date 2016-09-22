@@ -52,6 +52,8 @@ namespace Odnoklassniki
 
 		void GetAppUsers(OKGetAppUsersCallback callback);
 
+		void ReportPayment(string trxId, string amount, string currency);
+
 		#endregion
 
 		#region Debug tools
