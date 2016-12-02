@@ -2,6 +2,7 @@ Odnoklassniki Unity SDK
 =============
 
 This SDK allows you to connect your Unity **Android** and **iOS** with Odnoklassniki.
+**Note: This version Odnoklassniki Unity SDK only supports Unity 5.X+. Check unity4x branch for older version support**
 
 Application Requirements
 -------
@@ -19,9 +20,8 @@ An application registered within OK platform should have:
 Setup
 -------
 
-1. Based on which Unity major version you are using (4 or 5), you should retain the corresponding DLL file and metafile and delete the other (`odnoklassniki_unity4.dll`, `odnoklassniki_unity4.dll.meta` / `odnoklassiki_unity5.dll`, `odnoklassniki_unity5.dll.meta` in `Assets/Plugins`) - make sure that GUID of the given DLL stays the same, since if changed, it may break included prefabs. Note that this should be done BEFORE opening the project in Unity.
-2. Fill in application parameters in `OdnoklassnikiSettings.asset`
-3. Add the following entries to your `android.manifest` 
+1. Fill in application parameters in `OdnoklassnikiSettings.asset`
+2. Add the following entries to your `android.manifest` 
 
 * within **application** tag
 ```
