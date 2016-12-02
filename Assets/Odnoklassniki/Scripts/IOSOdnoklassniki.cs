@@ -44,36 +44,48 @@ namespace Odnoklassniki
 #endif
 		}
 
+		public void AuthSuccessIOS(string data)
+		{
+			// Since we can no longer tell which auth type was actually used based on response from iOS, look at authRequested type to determine that.
+			if (authRequested == OKAuthType.SSO)
+			{
+				SSOAuthSuccessIOS(data);
+			}
+			else
+			{
+				OAuthSuccess(data);
+			}
+		}
+
 		public void SSOAuthSuccessIOS(string data)
 		{
-			Debug.Log("Received IOS App Auth callback: " + data);
-			Debug.Log("Requesting access token by code");
-			new Request(TokenByCodeUrl(data), Method.POST).Send(request =>
+			Debug.Log("Received SSOAuth callback: " + data);
+			string[] args = data.Split(';');
+			if (args.Length != 3)
 			{
-				string response = request.response.Text;
-				Debug.Log("Got response from tokenByCode: " + response);
-				Hashtable json = (Hashtable) JSON.Decode(response);
-				if (!json.ContainsKey("access_token") || (!json.ContainsKey("refresh_token")))
-				{
-					Debug.LogError("Bad response: access_token or refresh_token is not present");
-					return;
-				}
-
-				AccessToken = json["access_token"].ToString();
-				AccessTokenExpiresAt = json.ContainsKey("expires_in") ? ParseExpiration(json["expires_in"].ToString()) : DefaultAccessTokenExpires();
-				RefreshToken = json["refresh_token"].ToString();
-				RefreshTokenExpiresAt = DefaultRefreshTokenExpires();
-				authRequested = OKAuthType.None;
-				AuthType = OKAuthType.SSO;
-				Debug.Log("Authorized via SSO");
-				// Send any unsent payment reports.
-				ReportPaymentSendInternal();
+				Debug.LogError("Auth failed. Bad argument count - " + args.Length);
+				Debug.LogError("Should be 3: access_token, session_secret_key, expires_in");
 				if (authCallback != null)
 				{
-					authCallback(true);
+					authCallback(false);
 					authCallback = null;
 				}
-			});
+				return;
+			}
+			AccessToken = args[0];
+			RefreshToken = args[1];
+			AccessTokenExpiresAt = DefaultAccessTokenExpires();
+			RefreshTokenExpiresAt = DefaultRefreshTokenExpires();
+			authRequested = OKAuthType.None;
+			AuthType = OKAuthType.SSO;
+
+			// Send any unsent payment reports.
+			ReportPaymentSendInternal();
+			if (authCallback != null)
+			{
+				authCallback(true);
+				authCallback = null;
+			}
 		}
 	}
 }

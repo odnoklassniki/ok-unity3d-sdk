@@ -12,7 +12,6 @@ namespace Odnoklassniki
 	public abstract class AbstractOdnoklassniki : MonoBehaviour, IOdnoklassniki
 	{
 		protected string appKey;
-		protected string appSecretKey;
 
 		private bool forceOAuth;
 		private bool fallbackToOAuth;
@@ -35,7 +34,7 @@ namespace Odnoklassniki
 
 		#region Constants
 
-		private static string authURL = "https://www.odnoklassniki.ru/oauth/authorize?client_id={0}&scope={1}&response_type={2}&redirect_uri={3}&layout={4}";
+		private static string authURL = "https://www.odnoklassniki.ru/oauth/authorize?client_id={0}&scope={1}&response_type={2}&redirect_uri={3}&layout={4}&platform={5}";
 		private static string refreshTokenURL = "{0}oauth/token.do?grant_type=refresh_token&refresh_token={1}&client_id={2}&client_secret={3}";
 		private static string tokenByCodeURL = "{0}oauth/token.do?grant_type=authorization_code&code={1}&permissions={2}&redirect_uri={3}&client_id={4}&client_secret={5}";
 		private static string apiURL = "{0}fb.do?access_token={1}&sig={2}&{3}";
@@ -159,7 +158,6 @@ namespace Odnoklassniki
 			DontDestroyOnLoad(gameObject);
 			AppId = OKSettings.AppId;
 			appKey = OKSettings.AppKey;
-			appSecretKey = OKSettings.AppSecretKey;
 			forceOAuth = OKSettings.ForceOAuth;
 			fallbackToOAuth = OKSettings.FallbackToOAuth;
 			HTTP.Request.LogAllRequests = OKSettings.LogAllRequests;
@@ -184,7 +182,7 @@ namespace Odnoklassniki
 				{"application_key", appKey},
 				{"session_data", JSON.Encode(jsonData)}
 			};
-			string url = string.Format("https://api.ok.ru/fb.do?sig={0}&{1}", CalculateSigNoSession(args), URLParams(args));
+			string url = string.Format("https://api.ok.ru/fb.do?{0}", URLParams(args));
 			new HTTP.Request(url).Send(request =>
 			{
 				try
@@ -297,13 +295,13 @@ namespace Odnoklassniki
 			authRequested = OKAuthType.None;
 			AuthType = OKAuthType.OAuth;
 			Debug.Log("Authorized via OAuth!");
+			// Send any unsent payment reports.
+			ReportPaymentSendInternal();
 			if (authCallback != null)
 			{
 				authCallback(true);
 				authCallback = null;
 			}
-			// Send any unsent payment reports.
-			ReportPaymentSendInternal();
 			HideWebView();
 		}
 
@@ -404,17 +402,12 @@ namespace Odnoklassniki
 
 		protected string GetAuthUrl()
 		{
-			return string.Format(authURL, AppId, scope, responseType, WWW.EscapeURL(GetAppUrl()), layout);
-		}
-
-		protected string RefreshTokenUrl()
-		{
-			return string.Format(refreshTokenURL, apiServer, RefreshToken, AppId, appSecretKey);
-		}
-
-		protected string TokenByCodeUrl(string code)
-		{
-			return string.Format(tokenByCodeURL, apiServer, code, scope, WWW.EscapeURL(GetAppUrl()), AppId, appSecretKey);
+#if UNITY_ANDROID
+		string platform = OKPlatform.Android;
+#else
+		string platform = OKPlatform.iOS;
+#endif
+			return string.Format(authURL, AppId, scope, responseType, WWW.EscapeURL(GetAppUrl()), layout, platform);
 		}
 
 		protected string GetApiUrl(Dictionary<string, string> args)
@@ -440,58 +433,6 @@ namespace Odnoklassniki
 			}
 		}
 
-		public void RefreshAccessToken(OKRefreshTokenCallback callback)
-		{
-			if (AuthType != OKAuthType.SSO)
-			{
-				Debug.Log("RefreshToken is only supported for SSO Auth type: Received " + AuthType);
-				if (callback != null)
-				{
-					callback(false);
-				}
-				return;
-			}
-
-			if (!IsRefreshTokenValid)
-			{
-				Debug.Log("RefreshToken expired");
-				if (callback != null)
-				{
-					callback(false);
-				}
-				return;
-			}
-
-			Debug.Log("Refreshing token!");
-			new HTTP.Request(RefreshTokenUrl(), HTTP.Method.POST).Send(request =>
-			{
-				Debug.Log("RefreshToken response: " + request.response.Text);
-				Hashtable json = request.response.Object;
-				if (!json.ContainsKey("access_token"))
-				{
-					Debug.LogError("Refresh token response does not contain access_token");
-					if (callback != null)
-					{
-						callback(false);
-					}
-					return;
-				}
-				string newToken = (string)json["access_token"];
-				Debug.Log("Token refreshed: " + newToken);
-				AccessToken = newToken;
-				AccessTokenExpiresAt = DefaultAccessTokenExpires();
-				if (callback != null)
-				{
-					callback(true);
-				}
-			});
-		}
-
-		private string CalculateSigNoSession(Dictionary<string, string> args)
-		{
-			return Encryption.Md5string(string.Format("{0}{1}", URLParams(args, "", false), appSecretKey)).ToLower();
-		}
-
 		private string CalculateSig(Dictionary<string, string> args)
 		{
 			if (AuthType == OKAuthType.OAuth)
@@ -501,8 +442,7 @@ namespace Odnoklassniki
 
 			if (AuthType == OKAuthType.SSO)
 			{
-				string md5Secret = Encryption.Md5string(AccessToken + appSecretKey);
-				return Encryption.Md5string(URLParams(args, "", false) + md5Secret);
+				return Encryption.Md5string(string.Format("{0}{1}", URLParams(args, "", false), RefreshToken)).ToLower();
 			}
 			return "";
 		}
@@ -510,6 +450,11 @@ namespace Odnoklassniki
 		#endregion
 
 		protected abstract string GetPlatform();
+
+		public void Api(string query, HTTP.Method method, Dictionary<string, string> args, OKRequestCallback callback)
+		{
+			Api(query, method, httpFormat, args, callback, useSession:true);
+		}
 
 		public void Api(string query, HTTP.Method method, Dictionary<string, string> args, OKRequestCallback callback, bool useSession = true)
 		{
@@ -523,9 +468,16 @@ namespace Odnoklassniki
 			args.Add(ParamFormat, format.ToString());
 			args.Add(ParamPlatform, GetPlatform().ToUpper());
 
+			// Check if target API requires SdkToken.
 			if (OKMethod.RequiresSdkToken(query))
 			{
 				args.Add(ParamSdkToken, unitySessionKey);
+			}
+			
+			// Override useSession for some API requests that fail if called within session.
+			if (!OKMethod.RequiresSession(query))
+			{
+				useSession = false;
 			}
 
 			string url = useSession ? GetApiUrl(args) : GetApiNoSessionUrl(args);
@@ -609,7 +561,12 @@ namespace Odnoklassniki
 			return string.Join(delim, urlParams.ToArray());
 		}
 
-		public void ClearTokens(bool clearCookies = true)
+		public void ClearTokens()
+		{
+			ClearTokens(clearCookies: true);
+		}
+
+		public void ClearTokens(bool clearCookies)
 		{
 			AccessToken = null;
 			AccessTokenExpiresAt = DateTime.Now;
@@ -748,44 +705,6 @@ namespace Odnoklassniki
 		}
 
 		public abstract bool IsOdnoklassnikiNativeAppInstalled ();
-
-		private void AppInvite(string[] uids, string[] devices, string text, OKRequestCallback callback)
-		{
-			Api(OKMethod.SDK.appInvite,
-				new Dictionary<string, string> {
-					{"uids", string.Join(",", uids)},
-					{"devices", string.Join(",", devices)},
-					{"text", text}
-				},
-				delegate(HTTP.Response response)
-				{
-					callback(response);
-				}
-			);
-		}
-
-		private void AppSuggest(string[] uids, string text, OKRequestCallback callback)
-		{
-			Api(OKMethod.SDK.appSuggest,
-				new Dictionary<string, string>
-				{
-					{"uids", string.Join(",", uids)},
-					{"text", text}
-				},
-				callback
-			);
-		}
-
-		private void Publish(Hashtable attachment, OKRequestCallback callback)
-		{
-			Api(OKMethod.SDK.post,
-				new Dictionary<string, string>
-				{
-					{"attachment", JSON.Encode(attachment)}
-				},
-				callback
-			);
-		}
 
 		private void UploadToAlbum(Texture2D texture, string albumId, Action<Texture2D, string> callback)
 		{
@@ -954,11 +873,11 @@ namespace Odnoklassniki
 					{
 						GetInfo(ToStringArray(uids), fields, false, users =>
 						{
-							OKWidgets.OpenInviteDialog(callback, onClosed, users, defaultMessage, selected, AppInvite);
+							OKWidgets.OpenInviteDialog(callback, onClosed, users, defaultMessage, selected, this);
 						});
 					} else
 					{
-						OKWidgets.OpenInviteDialog(callback, onClosed, new OKUserInfo[0], defaultMessage, new string[0], AppInvite);
+						OKWidgets.OpenInviteDialog(callback, onClosed, new OKUserInfo[0], defaultMessage, new string[0], this);
 					}
 				});
 			});
@@ -981,12 +900,12 @@ namespace Odnoklassniki
 				{
 					GetInfo(ToStringArray(uids), fields, false, users =>
 					{
-						OKWidgets.OpenSuggestDialog(callback, onClosed, users, defaultMessage, selected, AppSuggest);
+						OKWidgets.OpenSuggestDialog(callback, onClosed, users, defaultMessage, selected, this);
 					});
 				}
 				else
 				{
-					OKWidgets.OpenSuggestDialog(callback, onClosed, new OKUserInfo[0], defaultMessage, new string[0], AppSuggest);
+					OKWidgets.OpenSuggestDialog(callback, onClosed, new OKUserInfo[0], defaultMessage, new string[0], this);
 				}
 				
 			});
@@ -995,7 +914,7 @@ namespace Odnoklassniki
 
 		public bool OpenPublishDialog(OKRequestCallback callback, Action onClosed, List<OKMedia> media)
 		{
-			OKWidgets.OpenPublishDialog(callback, onClosed, media, Publish, UploadPhotoForPublish);
+			OKWidgets.OpenPublishDialog(callback, onClosed, media, this, UploadPhotoForPublish);
 			return true;
 		}
 
@@ -1054,15 +973,9 @@ namespace Odnoklassniki
 
 		private void RefreshAuth(OKRefreshTokenCallback callback)
 		{
-			if (IsRefreshTokenValid)
-			{
-				RefreshAccessToken(callback);
-			} else
-			{
-				RefreshOAuth(success => {
-					callback(success);
-				});
-			}
+			Auth(success => {
+				callback(success);
+			});
 		}
 
 		public void RefreshOAuth(OKAuthCallback action)

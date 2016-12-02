@@ -24,7 +24,7 @@ bool isNativeAppInstalled(NSString* appId, NSString* scope) {
 	NSMutableDictionary *params = [NSMutableDictionary new];
 	params[@"client_id"] = appId;
 	params[@"redirect_uri"] = appBaseURL;
-	params[@"response_type"] = @"code";
+	params[@"response_type"] = @"token";
 	params[@"scope"] = scope;
 	
 	NSURL *authorizeUrl = [NSURL URLWithString:serializeURL(params, appBaseURL)];
@@ -38,7 +38,7 @@ void authorizeInApp(NSString* appId, NSString* scope) {
 	NSMutableDictionary *params = [NSMutableDictionary new];
 	params[@"client_id"] = appId;
 	params[@"redirect_uri"] = appBaseURL;
-	params[@"response_type"] = @"code";
+	params[@"response_type"] = @"token";
 	params[@"scope"] = scope;
 
 	UIApplication *app = [UIApplication sharedApplication];
