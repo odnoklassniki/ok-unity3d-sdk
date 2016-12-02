@@ -92,8 +92,6 @@ namespace Odnoklassniki
 		[SerializeField]
 		private string appKey = "";
 		[SerializeField]
-		private string appSecretKey = "";
-		[SerializeField]
 		private string appName = "App Name";
 		[SerializeField]
 		private bool forceOAuth = false;
