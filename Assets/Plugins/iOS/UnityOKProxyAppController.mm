@@ -42,18 +42,20 @@
 	NSString *token = [args objectForKey:@"access_token"];
 	NSString *key = [args objectForKey:@"session_secret_key"];
 	NSString *expiresIn = [args objectForKey:@"expires_in"];
+	NSString *refreshToken = [args objectForKey:@"refresh_token"];
 	NSString *code = [args objectForKey:@"code"];
 	NSString *error = [args objectForKey:@"error"];
 	
 	if (error) {
 		UnitySendMessage("Odnoklassniki", "AuthFailed", [error UTF8String]);
-	} else if (code) {
-		NSLog(@"Extracted code=%@", code);
-		UnitySendMessage("Odnoklassniki", "SSOAuthSuccessIOS", [code UTF8String]);
-	} else {
+	} else if (key) {
 		NSLog(@"Extracted token=%@ , key=%@ , expiresIn=%@", token, key, expiresIn);
 		NSString* message = [NSString stringWithFormat:@"%@;%@;%@", token, key, expiresIn];
-		UnitySendMessage("Odnoklassniki", "OAuthSuccess", [message UTF8String]);
+		UnitySendMessage("Odnoklassniki", "AuthSuccessIOS", [message UTF8String]);
+	} else {
+		NSLog(@"Extracted token=%@ , no key, refreshToken=%@ , expiresIn=%@", token, refreshToken, expiresIn);
+		NSString* message = [NSString stringWithFormat:@"%@;%@;%@", token, refreshToken, expiresIn];
+		UnitySendMessage("Odnoklassniki", "AuthSuccessIOS", [message UTF8String]);
 	}
 
 	return [super application:application

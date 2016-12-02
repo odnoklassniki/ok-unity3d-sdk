@@ -18,7 +18,7 @@ namespace Odnoklassniki
 
 		public const string SDK_VERSION = "2";
 		public const string CLIENT_TYPE = "SDK_UNITY3D";
-		public const string CLIENT_VERSION = "1.0.22";
+		public const string CLIENT_VERSION = "1.0.23";
 
 		const string OdnoklassnikiSettingsAssetName = "OdnoklassnikiSettings";
 		const string OdnoklassnikiSettingsPath = "Odnoklassniki/Resources";
@@ -177,19 +177,6 @@ namespace Odnoklassniki
 				if (Instance.appName != value)
 				{
 					Instance.appName = value;
-					DirtyEditor();
-				}
-			}
-		}
-
-		public static string AppSecretKey
-		{
-			get { return Instance.appSecretKey; }
-			set
-			{
-				if (Instance.appSecretKey != value)
-				{
-					Instance.appSecretKey = value;
 					DirtyEditor();
 				}
 			}
