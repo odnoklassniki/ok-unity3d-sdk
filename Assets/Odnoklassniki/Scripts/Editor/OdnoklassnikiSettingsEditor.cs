@@ -14,7 +14,6 @@ namespace Odnoklassniki
 		GUIContent appNameLabel = new GUIContent("App Name [?]:", "Odnoklassniki Application Name");
 		GUIContent appIdLabel = new GUIContent("App Id [?]:", "Odnoklassniki Application ID");
 		GUIContent appKeyLabel = new GUIContent("App Key [?]:", "Odnoklassniki Application Key");
-		GUIContent appSecretKeyLabel = new GUIContent("App Secret Key [?]:", "Odnoklassniki Application Secret Key");
 
 		//Permissions
 		GUIContent valuableAccessLabel = new GUIContent("Valuable Access [?]:", "Permission to access API methods");
@@ -60,7 +59,6 @@ namespace Odnoklassniki
 			OKSettings.AppName = EditorGUILayout.TextField(appNameLabel, OKSettings.AppName);
 			OKSettings.AppId = EditorGUILayout.TextField(appIdLabel, OKSettings.AppId);
 			OKSettings.AppKey = EditorGUILayout.TextField(appKeyLabel, OKSettings.AppKey);
-			OKSettings.AppSecretKey = EditorGUILayout.TextField(appSecretKeyLabel, OKSettings.AppSecretKey);
 
 			EditorGUILayout.Space();
 		}
