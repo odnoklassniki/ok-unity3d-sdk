@@ -28,7 +28,7 @@ namespace Odnoklassniki
 			if (!base.SsoAuth()) return false;
 #if UNITY_ANDROID && !UNITY_EDITOR
 			authRequested = OKAuthType.SSO;
-			Android.CallStatic("SSOAuth", AppId, appSecretKey, scope);
+			Android.CallStatic("SSOAuth", AppId, scope);
 			return true;
 #else
 			return false;
@@ -48,7 +48,7 @@ namespace Odnoklassniki
 		public override bool IsOdnoklassnikiNativeAppInstalled()
 		{
 #if UNITY_ANDROID && !UNITY_EDITOR
-			return Android.CallStatic<bool>("CheckNativeApp");
+			return Android.CallStatic<bool>("IsNativeAppInstalled");
 #else
 			return false;
 #endif
@@ -70,7 +70,12 @@ namespace Odnoklassniki
 			if (args.Length != 2)
 			{
 				Debug.LogError("Auth failed. Bad argument count - " + args.Length);
-				Debug.LogError("Should be 2: access_token, refresh_token");
+				Debug.LogError("Should be 2: access_token, refresh_token(secret_session_key)");
+				if (authCallback != null)
+				{
+					authCallback(false);
+					authCallback = null;
+				}
 				return;
 			}
 			AccessToken = args[0];
