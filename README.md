@@ -2,6 +2,7 @@ Odnoklassniki Unity SDK
 =============
 
 This SDK allows you to connect your Unity **Android** and **iOS** with Odnoklassniki.
+
 **Note: This version Odnoklassniki Unity SDK only supports Unity 5.X+. Check unity4x branch for older version support**
 
 Application Requirements

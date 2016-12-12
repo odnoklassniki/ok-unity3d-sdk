@@ -44,9 +44,6 @@ namespace Odnoklassniki
 		protected string responseType = "token";
 		protected string layout = "m";
 
-		private const int AccessTokenDuration = 1800; //access token expiration time in seconds
-		private const int RefreshTokenDuration = 30; //access token expiration time in days
-
 		private const string PrefsSessionSecretKey = "unityok_session_secret_key";
 		private const string PrefsAccessToken = "unityok_access_token";
 		private const string PrefsRefreshToken= "unityok_refresh_token";
@@ -224,16 +221,6 @@ namespace Odnoklassniki
 			});
 		}
 
-		protected DateTime DefaultAccessTokenExpires()
-		{
-			return DateTime.Now.AddSeconds(AccessTokenDuration); //Since SSO Auth does not pass expiresIn, fill manually
-		}
-
-		protected DateTime DefaultRefreshTokenExpires()
-		{
-			return DateTime.Now.AddDays(RefreshTokenDuration);
-		}
-
 		#region Authorization
 
 		public virtual void Auth(OKAuthCallback callback)
@@ -277,10 +264,11 @@ namespace Odnoklassniki
 		public void OAuthSuccess(string data)
 		{
 			string[] args = data.Split(';');
-			if (args.Length != 3)
+			// Expires_in is no longer mandatory.
+			if (args.Length < 2)
 			{
 				Debug.LogError("Auth failed. Bad argument count - " + args.Length);
-				Debug.LogError("Should be 3: access_token, session_secret_key, expires_in");
+				Debug.LogError("Should at least 2: access_token, session_secret_key, expires_in(optional)");
 				if (authCallback != null)
 				{
 					authCallback(false);
@@ -291,7 +279,6 @@ namespace Odnoklassniki
 			AccessToken = args[0];
 			//temp fix for permissions_granted change
 			SessionSecretKey = args[1].Split('&')[0];
-			AccessTokenExpiresAt = ParseExpiration(args[2]);
 			authRequested = OKAuthType.None;
 			AuthType = OKAuthType.OAuth;
 			Debug.Log("Authorized via OAuth!");
@@ -422,15 +409,7 @@ namespace Odnoklassniki
 
 		private bool AccessTokenValid()
 		{
-			return AccessToken != null && AccessTokenExpiresAt > DateTime.Now;
-		}
-
-		public bool IsRefreshTokenValid
-		{
-			get
-			{
-				return RefreshToken != null && RefreshTokenExpiresAt > DateTime.Now;
-			}
+			return !string.IsNullOrEmpty(AccessToken);
 		}
 
 		private string CalculateSig(Dictionary<string, string> args)
@@ -569,9 +548,7 @@ namespace Odnoklassniki
 		public void ClearTokens(bool clearCookies)
 		{
 			AccessToken = null;
-			AccessTokenExpiresAt = DateTime.Now;
 			RefreshToken = null;
-			RefreshTokenExpiresAt = DateTime.Now;
 			SessionSecretKey = null;
 			AuthType = OKAuthType.None;
 
@@ -968,7 +945,7 @@ namespace Odnoklassniki
 				return;
 			}
 
-			OAuthSuccess(debugAccessToken + ";" + debugSessionKey + ";" + AccessTokenDuration);
+			OAuthSuccess(debugAccessToken + ";" + debugSessionKey);
 		}
 
 		private void RefreshAuth(OKRefreshTokenCallback callback)
