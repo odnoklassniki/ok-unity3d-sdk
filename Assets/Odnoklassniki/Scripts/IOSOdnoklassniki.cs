@@ -74,8 +74,6 @@ namespace Odnoklassniki
 			}
 			AccessToken = args[0];
 			RefreshToken = args[1];
-			AccessTokenExpiresAt = DefaultAccessTokenExpires();
-			RefreshTokenExpiresAt = DefaultRefreshTokenExpires();
 			authRequested = OKAuthType.None;
 			AuthType = OKAuthType.SSO;
 
