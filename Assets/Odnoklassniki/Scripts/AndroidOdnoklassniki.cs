@@ -59,7 +59,7 @@ namespace Odnoklassniki
 #if UNITY_ANDROID && !UNITY_EDITOR
 			return Android.CallStatic<string>("getAdvertisingId");
 #else
-			throw new NotImplementedException("AdvertisingId only available for Android");
+			throw new NotImplementedException("AdvertisingId only available for Android platform, not in Editor.");
 #endif
 		}
 
