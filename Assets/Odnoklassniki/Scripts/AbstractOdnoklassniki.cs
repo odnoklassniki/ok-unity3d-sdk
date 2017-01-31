@@ -648,6 +648,38 @@ namespace Odnoklassniki
 			}
 		}
 
+		public void GetInstallSource(OKGetInstallSource callback)
+		{
+			string adId = GetAdvertisingId();
+			if (String.IsNullOrEmpty(adId))
+			{
+				Debug.LogWarning("Could not get a valid AdvertisingId for current platform.");
+				callback(null);
+			} else {
+				Api(OKMethod.SDK.getInstallSource,
+					new Dictionary<string, string> {
+						{ "adv_id", adId}
+					},
+					delegate (HTTP.Response response)
+					{
+						// Check for error responses
+						Hashtable obj = response.Object;
+						if (obj != null)
+						{
+							if (obj.ContainsKey("error_msg"))
+							{
+								string errorMsg = obj["error_msg"].ToString();
+								Debug.LogWarning("Error response while calling sdk.getInstallSource: " + errorMsg);
+								callback(null);
+								return;
+							}
+						}
+						callback(response.Text);
+					}
+				);
+			}
+		}
+
 		public void GetAppUsers(OKGetAppUsersCallback callback)
 		{
 			Api(OKMethod.Friends.getAppUsers, delegate(HTTP.Response response)

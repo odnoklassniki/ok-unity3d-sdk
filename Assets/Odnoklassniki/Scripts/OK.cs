@@ -150,6 +150,14 @@ namespace Odnoklassniki
 			OdnoklassnikiImpl.GetInfo(uids, fields, emptyPictures, callback);
 		}
 
+		/**
+		 * Returns sdk.getInstallSource response, or null, if it failed to get AdvertisingId.
+		 */
+		public static void GetInstallSource(OKGetInstallSource callback)
+		{
+			OdnoklassnikiImpl.GetInstallSource(callback);
+		}
+
 		public static void GetAppUsers(OKGetAppUsersCallback callback)
 		{
 			OdnoklassnikiImpl.GetAppUsers(callback);
