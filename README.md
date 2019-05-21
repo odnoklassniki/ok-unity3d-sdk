@@ -1,3 +1,8 @@
+**This library is deprecated**:
+- If you are creating **HTML5** app using Unity it's recommended to use [ok-js-sdk](https://github.com/odnoklassniki/ok-js-sdk/)
+- If you are creating **native** app it's recommended to use webview [oauth](https://apiok.ru/en/ext/oauth/) with viral widgets [suggest/invite](https://apiok.ru/en/ext/invite_suggest) and [post](https://apiok.ru/en/ext/publish) and [REST requests](https://apiok.ru/en/dev/methods/)
+
+
 Odnoklassniki Unity SDK
 =============
 
